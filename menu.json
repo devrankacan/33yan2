@@ -1,0 +1,72 @@
+{
+  "Çaylar": {
+    "tileNum": "1",
+    "tileColor": "color-red",
+    "alt_kategoriler": {
+      "Genel": [
+        { "ad": "Çay", "aciklama": "Taze demlenmiş siyah çay", "fiyat": 15 },
+        { "ad": "Çay (Çift)", "aciklama": "Büyük boy çaydanlık", "fiyat": 25 },
+        { "ad": "Yeşil Çay", "aciklama": "Doğal yeşil çay", "fiyat": 20 },
+        { "ad": "Bitki Çayı", "aciklama": "Papatya, ıhlamur, adaçayı seçenekleri", "fiyat": 25 },
+        { "ad": "Nane Limon", "aciklama": "Taze nane ve limon", "fiyat": 25 },
+        { "ad": "Elma Çayı", "aciklama": "Aromalı elma çayı", "fiyat": 20 }
+      ]
+    }
+  },
+  "Kahveler": {
+    "tileNum": "2",
+    "tileColor": "color-black",
+    "alt_kategoriler": {
+      "Sıcak Kahveler": [
+        { "ad": "Türk Kahvesi", "aciklama": "Geleneksel pişirme yöntemi", "fiyat": 35 },
+        { "ad": "Sade Kahve", "aciklama": "Şekersiz filtre kahve", "fiyat": 30 },
+        { "ad": "Nescafe", "aciklama": "Klasik hazır kahve", "fiyat": 30 },
+        { "ad": "Sütlü Kahve", "aciklama": "Nescafe + sıcak süt", "fiyat": 35 }
+      ],
+      "Soğuk Kahveler": [
+        { "ad": "Soğuk Kahve", "aciklama": "Buzlu hazır kahve", "fiyat": 45 },
+        { "ad": "Frappé", "aciklama": "Köpüklü soğuk kahve", "fiyat": 50 }
+      ]
+    }
+  },
+  "Meşrubatlar": {
+    "tileNum": "3",
+    "tileColor": "color-blue",
+    "alt_kategoriler": {
+      "Genel": [
+        { "ad": "Kola", "aciklama": "330ml kutu", "fiyat": 30 },
+        { "ad": "Fanta", "aciklama": "330ml kutu", "fiyat": 30 },
+        { "ad": "Sprite", "aciklama": "330ml kutu", "fiyat": 30 },
+        { "ad": "Ayran", "aciklama": "Taze yayık ayranı", "fiyat": 20 },
+        { "ad": "Su", "aciklama": "500ml şişe", "fiyat": 10 },
+        { "ad": "Maden Suyu", "aciklama": "Sade veya meyveli", "fiyat": 20 }
+      ]
+    }
+  },
+  "Atıştırmalıklar": {
+    "tileNum": "4",
+    "tileColor": "color-yellow",
+    "alt_kategoriler": {
+      "Tatlılar": [
+        { "ad": "Çikolata", "aciklama": "Çeşitli bar çikolata", "fiyat": 25 },
+        { "ad": "Bisküvi", "aciklama": "Çeşitli bisküvi paketi", "fiyat": 20 },
+        { "ad": "Kek", "aciklama": "Günlük taze kek dilimi", "fiyat": 30 }
+      ],
+      "Tuzlular": [
+        { "ad": "Cips", "aciklama": "Büyük boy cips paketi", "fiyat": 35 },
+        { "ad": "Kuruyemiş", "aciklama": "Karışık kuruyemiş tabağı", "fiyat": 45 },
+        { "ad": "Fıstık", "aciklama": "Tuzlu kavrulmuş fıstık", "fiyat": 40 }
+      ]
+    }
+  },
+  "Okey & Oyunlar": {
+    "tileNum": "OK",
+    "tileColor": "color-red",
+    "items": [
+      { "ad": "Okey Masası (Saatlik)", "aciklama": "4 kişilik okey masası kirası", "fiyat": 50 },
+      { "ad": "Okey Masası (Günlük)", "aciklama": "Sınırsız günlük kullanım", "fiyat": 150 },
+      { "ad": "Tavla", "aciklama": "Tavla masası kullanımı", "fiyat": 30 },
+      { "ad": "Kart Oyunları", "aciklama": "Çeşitli kart oyunları", "fiyat": 20 }
+    ]
+  }
+}

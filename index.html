@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>33 YAN 2 | Menü</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --gold: #D4AF37; --price-gold: #ffc107; --tile-white: #fdfbf7; --bg-dark: #0f1215; --okey-red: #d92525; --okey-black: #111; --okey-blue: #0056b3; --okey-yellow: #cfa000; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: radial-gradient(circle at center, #1e2e1e 0%, #000000 100%); color: #e0e0e0; font-family: 'Lato', sans-serif; min-height: 100vh; overflow-x: hidden; position: relative; padding-bottom: 20px; }
+
+        .bg-decor { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-icon { position: absolute; color: rgba(255, 255, 255, 0.15); transform: rotate(-15deg); }
+        .icon-tea { top: 5%; left: -20px; font-size: 12rem; transform: rotate(10deg); }
+        .icon-dice { top: 12%; right: -30px; font-size: 9rem; transform: rotate(-25deg); opacity: 0.2; }
+        .icon-tiles { top: 50%; left: -40px; font-size: 15rem; opacity: 0.15; transform: rotate(-10deg); }
+
+        .top-nav { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 50; }
+        .nav-btn { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; }
+        .nav-btn:hover { background: var(--gold); color: #000; }
+
+        header { text-align: center; padding: 25px 10px 15px 10px; background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%); position: relative; z-index: 10; margin-top: 30px; }
+        .logo-container img { max-width: 140px; border-radius: 12px; box-shadow: 0 0 25px rgba(212, 175, 55, 0.2); border: 1px solid #333; }
+        .brand-subtitle { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem; margin-top: 10px; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); text-transform: uppercase; }
+
+        .search-container { max-width: 800px; margin: 10px auto; padding: 0 15px; position: relative; z-index: 10; }
+        .search-container input { width: 100%; padding: 12px 20px 12px 40px; border-radius: 25px; border: 1px solid #444; background: rgba(25,25,25,0.8); color: #fff; font-size: 1rem; outline: none; }
+        .search-container i { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: #888; }
+
+        .categories-wrapper { display: flex; justify-content: center; padding: 15px 0; position: sticky; top: 0; z-index: 40; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #333; }
+        .categories { display: flex; gap: 12px; padding: 0 15px; overflow-x: auto; scrollbar-width: none; align-items: center; justify-content: flex-start; }
+        .categories::-webkit-scrollbar { display: none; }
+        .cat-btn { background: var(--tile-white); color: #222; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+        .cat-btn.active { border: 2px solid var(--gold); background: #fff; }
+
+        .mini-tile { display: flex; justify-content: center; align-items: center; width: 20px; height: 28px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Cinzel', serif; font-weight: 900; }
+        .color-red { color: var(--okey-red); } .color-black { color: var(--okey-black); } .color-blue { color: var(--okey-blue); } .color-yellow { color: var(--okey-yellow); }
+
+        .menu-container { max-width: 900px; margin: 10px auto; padding: 0 15px; position: relative; z-index: 5; }
+        .section-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.4rem; margin: 40px 0 20px 0; text-align: center; border-bottom: 1px solid var(--gold); line-height: 0.1em; }
+        .section-title span { background: #0d120d; padding: 0 15px; text-transform: capitalize; }
+        .alt-kategori-baslik { grid-column: 1 / -1; color: var(--gold); border-bottom: 1px dashed #444; padding-bottom: 5px; margin-top: 15px; font-weight: bold; font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 1px; }
+
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .menu-item { display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; background: rgba(25, 25, 25, 0.85); padding: 15px 10px; border-radius: 8px; border-top: 3px solid #444; backdrop-filter: blur(5px); }
+        .item-info { flex-grow: 1; margin-bottom: 10px; }
+        .item-info h3 { font-size: 1.1rem; color: #fff; margin-bottom: 5px; line-height: 1.2; }
+        .item-info p { font-size: 0.8rem; color: #aaa; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .item-price { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--price-gold); font-weight: bold; }
+
+        footer { text-align: center; padding: 30px 20px; margin-top: 50px; border-top: 1px solid #222; background: rgba(0,0,0,0.6); position: relative; z-index: 5; }
+
+        .side-menu { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; background: rgba(20, 20, 20, 0.35); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); z-index: 999; border-right: 1px solid rgba(212, 175, 55, 0.3); transition: 0.4s ease-in-out; padding: 30px 20px; box-shadow: 5px 0 25px rgba(0,0,0,0.6); }
+        .side-menu.open { left: 0; }
+        .close-side { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: var(--gold); font-size: 2rem; cursor: pointer; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+        .side-menu h2 { color: var(--gold); text-align: center; margin-bottom: 30px; font-family: 'Cinzel', serif; margin-top: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
+        .info-block { margin-bottom: 25px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border-left: 3px solid var(--gold); }
+        .info-block label { display: block; color: var(--gold); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
+        .info-block p { color: #fff; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; }
+        .info-block i { width: 20px; text-align: center; color: #aaa; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .contact-modal { background: #1a1a1a; width: 90%; max-width: 400px; border-radius: 12px; border: 1px solid var(--gold); padding: 25px; position: relative; }
+        .close-modal { position: absolute; top: 10px; right: 15px; color: #fff; font-size: 1.5rem; cursor: pointer; }
+        .contact-modal h2 { color: var(--gold); margin-bottom: 20px; text-align: center; }
+        .contact-form input, .contact-form textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; font-family: 'Lato', sans-serif; }
+        .contact-form button { width: 100%; padding: 15px; background: var(--gold); color: #000; font-weight: bold; font-size: 1.1rem; border: none; border-radius: 6px; cursor: pointer; }
+        #formMessage { text-align: center; font-weight: bold; margin-top: 15px; display: none; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-decor"><i class="fas fa-mug-hot bg-icon icon-tea"></i><i class="fas fa-dice bg-icon icon-dice"></i><i class="fas fa-layer-group bg-icon icon-tiles"></i></div>
+
+    <div class="top-nav">
+        <button class="nav-btn" onclick="openSideMenu()"><i class="fas fa-bars"></i></button>
+        <button class="nav-btn" onclick="openContact()"><i class="fas fa-comment-dots"></i></button>
+    </div>
+
+    <header>
+        <div class="logo-container"><img src="logo.jpg" alt="33 YAN 2" onerror="this.src='https://via.placeholder.com/130x130/111/D4AF37?text=33+YAN+2'"></div>
+        <div class="brand-subtitle">OKEY & ÇAY SALONU</div>
+    </header>
+
+    <div class="search-container"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Menüde lezzet ara..." onkeyup="searchMenu()"></div>
+    <div class="categories-wrapper"><div class="categories" id="categoryList"></div></div>
+    <div class="menu-container" id="menuContent"><div style="text-align:center; padding:50px; color:var(--gold);"><i class="fas fa-spinner fa-spin"></i> Menü Yükleniyor...</div></div>
+    <footer><div class="footer-note">33 YAN 2 | Keyifli Oyunlar</div></footer>
+
+    <div id="sideMenu" class="side-menu">
+        <button class="close-side" onclick="closeSideMenu()">&times;</button>
+        <h2>Mekan Bilgileri</h2>
+        <div class="info-block"><label>Adres</label><p><i class="fas fa-map-marker-alt"></i> <span id="sAdres">Yükleniyor...</span></p></div>
+        <div class="info-block"><label>Çalışma Saatleri</label><p><i class="far fa-clock"></i> <span id="sSaatler">Yükleniyor...</span></p></div>
+        <div class="info-block"><label>Wi-Fi Şifresi</label><p><i class="fas fa-wifi"></i> <span id="sWifi">Yükleniyor...</span></p></div>
+        <div class="info-block"><label>Instagram</label><p><i class="fab fa-instagram"></i> <a id="sInstaLink" href="#" target="_blank" style="color:#fff; text-decoration:none;">@<span id="sInsta">Yükleniyor...</span></a></p></div>
+    </div>
+
+    <div id="contactModal" class="modal-overlay">
+        <div class="contact-modal">
+            <span class="close-modal" onclick="closeContact()">&times;</span>
+            <h2>Bize Mesaj Gönderin</h2>
+            <form id="contactForm" class="contact-form" onsubmit="gonderMail(event)">
+                <input type="text" id="mAd" placeholder="Adınız Soyadınız" required>
+                <input type="tel" id="mTel" placeholder="Telefon Numaranız" required>
+                <textarea id="mMesaj" placeholder="Mesajınız, görüşleriniz veya şikayetiniz..." rows="4" required></textarea>
+                <button type="submit" id="btnGonder"><i class="fas fa-paper-plane"></i> Gönder</button>
+            </form>
+            <div id="formMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        fetch('ayarlar.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('sAdres').innerText = data.adres || "Belirtilmedi";
+                document.getElementById('sSaatler').innerText = data.saatler || "Belirtilmedi";
+                document.getElementById('sWifi').innerText = data.wifi || "Belirtilmedi";
+                document.getElementById('sInsta').innerText = data.instagram || "33yan_2";
+                document.getElementById('sInstaLink').href = "https://instagram.com/" + (data.instagram || "33yan_2");
+            }).catch(e => console.log("Ayarlar yüklenemedi."));
+
+        const categoryList = document.getElementById('categoryList');
+        const menuContent = document.getElementById('menuContent');
+
+        fetch('menu.json?v=' + new Date().getTime())
+            .then(res => res.json())
+            .then(data => { menuContent.innerHTML = ''; initMenu(data); })
+            .catch(err => { menuContent.innerHTML = '<div style="color:red; text-align:center;">Menü yüklenemedi.</div>'; });
+
+        function initMenu(menuVerisi) {
+            let isFirst = true;
+            for (const [kategoriAdi, kategoriVerisi] of Object.entries(menuVerisi)) {
+                const btn = document.createElement('button');
+                btn.className = `cat-btn ${isFirst ? 'active' : ''}`;
+                btn.innerHTML = `<div class="mini-tile ${kategoriVerisi.tileColor}">${kategoriVerisi.tileNum}</div> ${kategoriAdi}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
+                    const el = document.getElementById(kategoriAdi.replace(/\s+/g, '-'));
+                    if(el) window.scrollTo({ top: (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130, behavior: "smooth" });
+                };
+                categoryList.appendChild(btn);
+
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'menu-section';
+                sectionDiv.id = kategoriAdi.replace(/\s+/g, '-');
+                sectionDiv.innerHTML = `<h2 class="section-title"><span>${kategoriAdi}</span></h2>`;
+
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'menu-grid';
+
+                if(kategoriVerisi.alt_kategoriler) {
+                    for (const [altKatAdi, urunler] of Object.entries(kategoriVerisi.alt_kategoriler)) {
+                        if(altKatAdi !== "Genel") { gridDiv.innerHTML += `<div class="alt-kategori-baslik">${altKatAdi}</div>`; }
+                        urunler.forEach(urun => {
+                            gridDiv.innerHTML += `
+                                <div class="menu-item">
+                                    <div class="item-info"><h3 class="item-name">${urun.ad}</h3>${urun.aciklama ? `<p>${urun.aciklama}</p>` : ''}</div>
+                                    <div class="item-price">${urun.fiyat}₺</div>
+                                </div>
+                            `;
+                        });
+                    }
+                } else if(kategoriVerisi.items) {
+                    kategoriVerisi.items.forEach(urun => {
+                        gridDiv.innerHTML += `
+                            <div class="menu-item">
+                                <div class="item-info"><h3 class="item-name">${urun.ad}</h3>${urun.aciklama ? `<p>${urun.aciklama}</p>` : ''}</div>
+                                <div class="item-price">${urun.fiyat}₺</div>
+                            </div>
+                        `;
+                    });
+                }
+
+                sectionDiv.appendChild(gridDiv); menuContent.appendChild(sectionDiv); isFirst = false;
+            }
+        }
+
+        function searchMenu() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.menu-section').forEach(section => {
+                let items = section.querySelectorAll('.menu-item'); let count = 0;
+                items.forEach(item => {
+                    if (item.querySelector('.item-name').innerText.toLowerCase().includes(input)) { item.classList.remove('hidden'); count++; }
+                    else { item.classList.add('hidden'); }
+                });
+                if (count === 0) section.classList.add('hidden'); else section.classList.remove('hidden');
+            });
+        }
+
+        function openSideMenu() { document.getElementById('sideMenu').classList.add('open'); }
+        function closeSideMenu() { document.getElementById('sideMenu').classList.remove('open'); }
+
+        function openContact() { document.getElementById('contactModal').style.display = 'flex'; }
+        function closeContact() { document.getElementById('contactModal').style.display = 'none'; document.getElementById('formMessage').style.display = 'none'; }
+
+        async function gonderMail(e) {
+            e.preventDefault();
+            let btn = document.getElementById('btnGonder'); let msgBox = document.getElementById('formMessage');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...'; btn.disabled = true;
+            let fd = new FormData(); fd.append('ajax_mail', '1'); fd.append('ad_soyad', document.getElementById('mAd').value); fd.append('telefon', document.getElementById('mTel').value); fd.append('mesaj', document.getElementById('mMesaj').value);
+            try {
+                let res = await fetch('index.php', { method: 'POST', body: fd }); let data = await res.json();
+                msgBox.style.display = 'block';
+                if(data.status === 'success') { msgBox.style.color = 'var(--success)'; msgBox.innerText = 'Mesajınız başarıyla iletildi!'; document.getElementById('contactForm').reset(); }
+                else { msgBox.style.color = 'var(--danger)'; msgBox.innerText = 'Sunucu kaynaklı bir hata oluştu.'; }
+            } catch(e) { msgBox.style.display = 'block'; msgBox.style.color = 'var(--danger)'; msgBox.innerText = 'Bağlantı hatası!'; }
+            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gönder'; btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
