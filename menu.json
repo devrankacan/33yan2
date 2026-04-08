@@ -1,72 +1,70 @@
 {
-  "Çaylar": {
-    "tileNum": "1",
-    "tileColor": "color-red",
-    "alt_kategoriler": {
-      "Genel": [
-        { "ad": "Çay", "aciklama": "Taze demlenmiş siyah çay", "fiyat": 15 },
-        { "ad": "Çay (Çift)", "aciklama": "Büyük boy çaydanlık", "fiyat": 25 },
-        { "ad": "Yeşil Çay", "aciklama": "Doğal yeşil çay", "fiyat": 20 },
-        { "ad": "Bitki Çayı", "aciklama": "Papatya, ıhlamur, adaçayı seçenekleri", "fiyat": 25 },
-        { "ad": "Nane Limon", "aciklama": "Taze nane ve limon", "fiyat": 25 },
-        { "ad": "Elma Çayı", "aciklama": "Aromalı elma çayı", "fiyat": 20 }
-      ]
-    }
-  },
-  "Kahveler": {
-    "tileNum": "2",
-    "tileColor": "color-black",
-    "alt_kategoriler": {
-      "Sıcak Kahveler": [
-        { "ad": "Türk Kahvesi", "aciklama": "Geleneksel pişirme yöntemi", "fiyat": 35 },
-        { "ad": "Sade Kahve", "aciklama": "Şekersiz filtre kahve", "fiyat": 30 },
-        { "ad": "Nescafe", "aciklama": "Klasik hazır kahve", "fiyat": 30 },
-        { "ad": "Sütlü Kahve", "aciklama": "Nescafe + sıcak süt", "fiyat": 35 }
-      ],
-      "Soğuk Kahveler": [
-        { "ad": "Soğuk Kahve", "aciklama": "Buzlu hazır kahve", "fiyat": 45 },
-        { "ad": "Frappé", "aciklama": "Köpüklü soğuk kahve", "fiyat": 50 }
-      ]
-    }
-  },
-  "Meşrubatlar": {
-    "tileNum": "3",
+  "İçecekler": {
+    "tileNum": "İ",
     "tileColor": "color-blue",
     "alt_kategoriler": {
-      "Genel": [
-        { "ad": "Kola", "aciklama": "330ml kutu", "fiyat": 30 },
-        { "ad": "Fanta", "aciklama": "330ml kutu", "fiyat": 30 },
-        { "ad": "Sprite", "aciklama": "330ml kutu", "fiyat": 30 },
-        { "ad": "Ayran", "aciklama": "Taze yayık ayranı", "fiyat": 20 },
-        { "ad": "Su", "aciklama": "500ml şişe", "fiyat": 10 },
-        { "ad": "Maden Suyu", "aciklama": "Sade veya meyveli", "fiyat": 20 }
+      "Sıcak İçecekler": [
+        { "ad": "Çay", "aciklama": "İnce belli bardakta, taze demlenmiş klasik", "fiyat": 25 },
+        { "ad": "Türk Kahvesi", "aciklama": "Bol köpüklü, lokum ve su eşliğinde", "fiyat": 120 },
+        { "ad": "Salep", "aciklama": "Üzeri tarçınlı, iç ısıtan kış lezzeti", "fiyat": 40 },
+        { "ad": "Toz İçecekler", "aciklama": "Oralet, kuşburnu gibi nostaljik sıcak tatlar", "fiyat": 35 }
+      ],
+      "Soğuk İçecekler": [
+        { "ad": "Su", "aciklama": "Buz gibi serinlik", "fiyat": 20 },
+        { "ad": "Soda Çeşitleri", "aciklama": "Sade ve meyveli ferahlık", "fiyat": 40 },
+        { "ad": "Churchill", "aciklama": "Bol limonlu ve tuzlu efsane maden suyu karışımı", "fiyat": 90 },
+        { "ad": "Büyük Cola-Fanta", "aciklama": "Buz gibi klasik", "fiyat": 70 },
+        { "ad": "Küçük Kola-Fanta", "aciklama": "Nostaljik cam şişede", "fiyat": 50 },
+        { "ad": "Fındık Kola", "aciklama": "Kola ve çıtır fındık tabağı ikilisi", "fiyat": 150 },
+        { "ad": "Fusetea Çeşitleri", "aciklama": "Şeftali ve limon seçenekleriyle", "fiyat": 70 },
+        { "ad": "Cappy Çeşitleri", "aciklama": "Meyve suyu alternatifleri", "fiyat": 70 },
+        { "ad": "REDBULL", "aciklama": "Oyun masasında ekstra enerji", "fiyat": 100 },
+        { "ad": "FINDIKLI REDBULL", "aciklama": "Enerji patlaması ve fındık tabağı bir arada", "fiyat": 170 }
       ]
     }
   },
   "Atıştırmalıklar": {
-    "tileNum": "4",
+    "tileNum": "A",
     "tileColor": "color-yellow",
     "alt_kategoriler": {
-      "Tatlılar": [
-        { "ad": "Çikolata", "aciklama": "Çeşitli bar çikolata", "fiyat": 25 },
-        { "ad": "Bisküvi", "aciklama": "Çeşitli bisküvi paketi", "fiyat": 20 },
-        { "ad": "Kek", "aciklama": "Günlük taze kek dilimi", "fiyat": 30 }
+      "Kuruyemişler": [
+        { "ad": "Çerez Tabağı", "aciklama": "Oyunun vazgeçilmezi taze karışım çerez", "fiyat": 100 },
+        { "ad": "Fındık Tabağı", "aciklama": "Çıtır çıtır, taze kavrulmuş fındık", "fiyat": 150 }
       ],
-      "Tuzlular": [
-        { "ad": "Cips", "aciklama": "Büyük boy cips paketi", "fiyat": 35 },
-        { "ad": "Kuruyemiş", "aciklama": "Karışık kuruyemiş tabağı", "fiyat": 45 },
-        { "ad": "Fıstık", "aciklama": "Tuzlu kavrulmuş fıstık", "fiyat": 40 }
+      "Çikolata ve Tatlı Atıştırmalıkı": [
+        { "ad": "Tadelle", "aciklama": "Bol fındıklı efsane çikolata", "fiyat": 100 },
+        { "ad": "Çikolatalar", "aciklama": "Enerji veren tatlı kaçamaklar", "fiyat": 50 },
+        { "ad": "Bisküviler", "aciklama": "Çayın yanına giden pratik atıştırmalıklar", "fiyat": 50 },
+        { "ad": "Halley", "aciklama": "Nostaljik ve doyurucu lezzetler", "fiyat": 30 },
+        { "ad": "9 KAT TAT", "aciklama": "Nostaljik ve doyurucu lezzetler", "fiyat": 30 },
+        { "ad": "Kekler", "aciklama": "Çay ve kahvenin en tatlı eşlikçisi", "fiyat": 30 }
+      ],
+      "Tuzlu Atıştırmalıklar": [
+        { "ad": "Krakerler", "aciklama": "Tuzlu ve çıtır seçenekler", "fiyat": 30 }
       ]
     }
   },
-  "Okey & Oyunlar": {
-    "tileNum": "OK",
+  "Yiyecekler": {
+    "tileNum": "Y",
     "tileColor": "color-red",
-    "items": [
-      { "ad": "Okey Masası (Saatlik)", "aciklama": "4 kişilik okey masası kirası", "fiyat": 50 },
-      { "ad": "Okey Masası (Günlük)", "aciklama": "Sınırsız günlük kullanım", "fiyat": 150 },
-      { "ad": "Tavla", "aciklama": "Tavla masası kullanımı", "fiyat": 30 },
-      { "ad": "Kart Oyunları", "aciklama": "Çeşitli kart oyunları", "fiyat": 20 }
-    ]
+    "alt_kategoriler": {
+      "Kahvaltılıklar": [
+        { "ad": "Kahvaltı Tabağı", "aciklama": "Güne zinde başlamak isteyenlere zengin çeşit", "fiyat": 150 }
+      ],
+      "Tostlar": [
+        { "ad": "Karışık Tost", "aciklama": "Sucuk ve erimiş kaşarın klasik buluşması", "fiyat": 200 }
+      ],
+      "Burgerler": [
+        { "ad": "Tost Burger", "aciklama": "Tost ekmeği arasında nefis burger lezzeti", "fiyat": 250 },
+        { "ad": "Köfte Burger", "aciklama": "Özel sosuyla doyurucu ve klasik", "fiyat": 300 },
+        { "ad": "CheeseBurger", "aciklama": "Bol cheddar peynirli nefis lezzet", "fiyat": 325 },
+        { "ad": "Double Burger", "aciklama": "Ekstra açlar için çift katlı efsane", "fiyat": 450 },
+        { "ad": "Tavuk Burger", "aciklama": "Çıtır tavuklu hafif alternatif", "fiyat": 200 }
+      ],
+      "Aperatifler": [
+        { "ad": "Atıştırma Tabağı", "aciklama": "Soğan halkası ve sıcak çıtır lezzetler bir arada", "fiyat": 200 },
+        { "ad": "Patates Cipsi", "aciklama": "Sıcak ve baharatlı çıtır patates kızartması", "fiyat": 100 }
+      ]
+    }
   }
 }
