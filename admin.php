@@ -776,8 +776,6 @@ async function openAdisyon(masa_id, masa_ad) {
     currentMasaAd = masa_ad;
     document.getElementById('modalMasaAd').textContent = masa_ad + ' Adisyonu';
     document.getElementById('adisyonModal').style.display = 'flex';
-    document.getElementById('menuSearchInp').value = '';
-    filterMenuItems('');
     await refreshAdisyon();
     renderMenuPanel();
 }
@@ -867,12 +865,6 @@ async function addToOrder(ad, fiyat) {
     await refreshAdisyon();
 }
 
-function filterMenuItems(q) {
-    q = q.toLowerCase().trim();
-    document.querySelectorAll('#menuPanel .menu-item-btn').forEach(el => {
-        el.style.display = (!q || el.querySelector('span').textContent.toLowerCase().includes(q)) ? '' : 'none';
-    });
-}
 
 async function closeBill(odeme) {
     const labels = {nakit:'Nakit', kart:'Kart', iban:'IBAN'};
