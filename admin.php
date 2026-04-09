@@ -74,14 +74,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $id    = (string)($_POST['masa_id'] ?? '');
             $adn   = trim($_POST['ad'] ?? '');
             $fiyat = floatval($_POST['fiyat'] ?? 0);
-            $adet  = intval($_POST['adet'] ?? 1);
             $ad = readJson($ADISYON_FILE, []);
             if (empty($ad[$id]['acik'])) { echo json_encode(['ok' => false, 'msg' => 'Masa kapalı!']); exit; }
-            $found = false;
-            foreach ($ad[$id]['urunler'] as &$u) {
-                if ($u['ad'] === $adn && $u['fiyat'] == $fiyat) { $u['adet'] += $adet; $found = true; break; }
-            }
-            if (!$found) $ad[$id]['urunler'][] = ['ad' => $adn, 'fiyat' => $fiyat, 'adet' => $adet];
+            $ad[$id]['urunler'][] = ['ad' => $adn, 'fiyat' => $fiyat, 'adet' => 1];
+            $t = 0; foreach ($ad[$id]['urunler'] as $u) $t += $u['fiyat'] * $u['adet'];
+            $ad[$id]['toplam'] = $t;
+            writeJson($ADISYON_FILE, $ad);
+            echo json_encode(['ok' => true, 'toplam' => $t]);
+            break;
+
+        case 'inc_item':
+            $id  = (string)($_POST['masa_id'] ?? '');
+            $idx = intval($_POST['idx'] ?? -1);
+            $ad  = readJson($ADISYON_FILE, []);
+            if (!isset($ad[$id]['urunler'][$idx])) { echo json_encode(['ok' => false, 'msg' => 'Yok!']); exit; }
+            $ad[$id]['urunler'][$idx]['adet']++;
             $t = 0; foreach ($ad[$id]['urunler'] as $u) $t += $u['fiyat'] * $u['adet'];
             $ad[$id]['toplam'] = $t;
             writeJson($ADISYON_FILE, $ad);
@@ -807,11 +814,7 @@ async function refreshAdisyon() {
 
 async function changeQty(idx, delta) {
     if (delta > 0) {
-        const d = await post('get_adisyon', { masa_id: currentMasaId });
-        if (!d.ok) return;
-        const item = d.adisyon.urunler[idx];
-        if (!item) return;
-        await post('add_item', { masa_id: currentMasaId, ad: item.ad, fiyat: item.fiyat, adet: 1 });
+        await post('inc_item', { masa_id: currentMasaId, idx });
     } else {
         await post('remove_item', { masa_id: currentMasaId, idx });
     }
