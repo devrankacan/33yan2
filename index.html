@@ -3,221 +3,383 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>33 YAN 2 | Menü</title>
+    <title id="pageTitle">33 YAN 2 | Menü</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-
     <style>
-        :root { --gold: #D4AF37; --price-gold: #ffc107; --tile-white: #fdfbf7; --bg-dark: #0f1215; --okey-red: #d92525; --okey-black: #111; --okey-blue: #0056b3; --okey-yellow: #cfa000; }
+        :root {
+            --gold: #D4AF37;
+            --price-gold: #ffc107;
+            --tile-white: #fdfbf7;
+            --okey-red: #d92525;
+            --okey-black: #111;
+            --okey-blue: #0056b3;
+            --okey-yellow: #cfa000;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: radial-gradient(circle at center, #1e2e1e 0%, #000000 100%); color: #e0e0e0; font-family: 'Lato', sans-serif; min-height: 100vh; overflow-x: hidden; position: relative; padding-bottom: 20px; }
+        body { background: radial-gradient(circle at center, #1a2a1a 0%, #000 100%); color: #e0e0e0; font-family: 'Lato', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 40px; }
 
-        .bg-decor { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
-        .bg-icon { position: absolute; color: rgba(255, 255, 255, 0.15); transform: rotate(-15deg); }
-        .icon-tea { top: 5%; left: -20px; font-size: 12rem; transform: rotate(10deg); }
-        .icon-dice { top: 12%; right: -30px; font-size: 9rem; transform: rotate(-25deg); opacity: 0.2; }
-        .icon-tiles { top: 50%; left: -40px; font-size: 15rem; opacity: 0.15; transform: rotate(-10deg); }
+        /* BG DECOR */
+        .bg-decor { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+        .bg-icon { position: absolute; color: rgba(255,255,255,.1); }
+        .icon-tea   { top: 5%;  left: -20px;  font-size: 12rem; transform: rotate(10deg); }
+        .icon-dice  { top: 12%; right: -30px; font-size: 9rem;  transform: rotate(-25deg); opacity:.15; }
+        .icon-tiles { top: 50%; left: -40px;  font-size: 15rem; transform: rotate(-10deg); opacity:.12; }
 
+        /* TOP NAV */
         .top-nav { position: absolute; top: 15px; width: 100%; display: flex; justify-content: space-between; padding: 0 20px; z-index: 50; }
-        .nav-btn { background: rgba(0,0,0,0.6); color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s; }
+        .nav-btn { background: rgba(0,0,0,.6); color: var(--gold); border: 1px solid var(--gold); width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; backdrop-filter: blur(5px); transition: .3s; }
         .nav-btn:hover { background: var(--gold); color: #000; }
 
-        header { text-align: center; padding: 25px 10px 15px 10px; background: linear-gradient(180deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%); position: relative; z-index: 10; margin-top: 30px; }
-        .logo-container img { max-width: 140px; border-radius: 12px; box-shadow: 0 0 25px rgba(212, 175, 55, 0.2); border: 1px solid #333; }
-        .brand-subtitle { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.1rem; margin-top: 10px; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); text-transform: uppercase; }
+        /* HEADER */
+        header { text-align: center; padding: 30px 10px 16px; background: linear-gradient(180deg, rgba(0,0,0,.9) 0%, transparent 100%); position: relative; z-index: 10; margin-top: 30px; }
+        .logo-container { margin-bottom: 10px; min-height: 20px; }
+        .logo-container img { max-width: 140px; max-height: 140px; object-fit: contain; border-radius: 12px; box-shadow: 0 0 25px rgba(212,175,55,.25); border: 1px solid #333; }
+        .brand-name { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.6rem; font-weight: 700; letter-spacing: 3px; text-shadow: 0 2px 8px rgba(0,0,0,.8); }
+        .brand-subtitle { font-family: 'Cinzel', serif; color: #aaa; font-size: .95rem; margin-top: 6px; letter-spacing: 2px; text-transform: uppercase; }
 
-        .search-container { max-width: 800px; margin: 10px auto; padding: 0 15px; position: relative; z-index: 10; }
-        .search-container input { width: 100%; padding: 12px 20px 12px 40px; border-radius: 25px; border: 1px solid #444; background: rgba(25,25,25,0.8); color: #fff; font-size: 1rem; outline: none; }
-        .search-container i { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: #888; }
+        /* SEARCH */
+        .search-container { max-width: 800px; margin: 12px auto 0; padding: 0 15px; position: relative; z-index: 10; }
+        .search-container input { width: 100%; padding: 11px 18px 11px 42px; border-radius: 25px; border: 1px solid #444; background: rgba(20,20,20,.85); color: #fff; font-size: .97rem; outline: none; transition: border-color .2s; }
+        .search-container input:focus { border-color: var(--gold); }
+        .search-container i { position: absolute; left: 30px; top: 50%; transform: translateY(-50%); color: #666; }
 
-        .categories-wrapper { display: flex; justify-content: center; padding: 15px 0; position: sticky; top: 0; z-index: 40; background: rgba(0, 0, 0, 0.95); backdrop-filter: blur(8px); border-bottom: 1px solid #333; }
-        .categories { display: flex; gap: 12px; padding: 0 15px; overflow-x: auto; scrollbar-width: none; align-items: center; justify-content: flex-start; }
+        /* CATEGORIES */
+        .categories-wrapper { position: sticky; top: 0; z-index: 40; background: rgba(0,0,0,.95); backdrop-filter: blur(10px); border-bottom: 1px solid #2a2a2a; }
+        .categories { display: flex; gap: 10px; padding: 10px 15px; overflow-x: auto; scrollbar-width: none; align-items: center; }
         .categories::-webkit-scrollbar { display: none; }
-        .cat-btn { background: var(--tile-white); color: #222; border: none; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-        .cat-btn.active { border: 2px solid var(--gold); background: #fff; }
+        .cat-btn { background: var(--tile-white); color: #222; border: 2px solid transparent; padding: 7px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px; white-space: nowrap; font-size: .9rem; transition: .2s; flex-shrink: 0; }
+        .cat-btn:hover { border-color: var(--gold); }
+        .cat-btn.active { border-color: var(--gold); background: #fff; }
+        .mini-tile { display: flex; justify-content: center; align-items: center; width: 20px; height: 28px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Cinzel', serif; font-weight: 900; font-size: .85rem; }
+        .color-red { color: var(--okey-red); } .color-black { color: var(--okey-black); }
+        .color-blue { color: var(--okey-blue); } .color-yellow { color: var(--okey-yellow); }
 
-        .mini-tile { display: flex; justify-content: center; align-items: center; width: 20px; height: 28px; border: 1px solid #ccc; border-radius: 3px; font-family: 'Cinzel', serif; font-weight: 900; }
-        .color-red { color: var(--okey-red); } .color-black { color: var(--okey-black); } .color-blue { color: var(--okey-blue); } .color-yellow { color: var(--okey-yellow); }
-
-        .menu-container { max-width: 900px; margin: 10px auto; padding: 0 15px; position: relative; z-index: 5; }
-        .section-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.4rem; margin: 40px 0 20px 0; text-align: center; border-bottom: 1px solid var(--gold); line-height: 0.1em; }
-        .section-title span { background: #0d120d; padding: 0 15px; text-transform: capitalize; }
-        .alt-kategori-baslik { grid-column: 1 / -1; color: var(--gold); border-bottom: 1px dashed #444; padding-bottom: 5px; margin-top: 15px; font-weight: bold; font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 1px; }
-
+        /* MENU */
+        .menu-container { max-width: 900px; margin: 0 auto; padding: 0 15px; position: relative; z-index: 5; }
+        .menu-section { padding-top: 10px; }
+        .section-title { font-family: 'Cinzel', serif; color: var(--gold); font-size: 1.35rem; margin: 36px 0 18px; text-align: center; display: flex; align-items: center; gap: 14px; }
+        .section-title::before, .section-title::after { content: ''; flex: 1; border-bottom: 1px solid var(--gold); opacity: .4; }
+        .alt-kategori-baslik { grid-column: 1/-1; color: var(--gold); border-bottom: 1px dashed #333; padding-bottom: 5px; margin-top: 18px; font-weight: bold; font-family: 'Cinzel', serif; text-transform: uppercase; letter-spacing: 1px; font-size: .9rem; }
         .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .menu-item { display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; background: rgba(25, 25, 25, 0.85); padding: 15px 10px; border-radius: 8px; border-top: 3px solid #444; backdrop-filter: blur(5px); }
+        .menu-item { display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; background: rgba(22,22,22,.9); padding: 15px 12px; border-radius: 10px; border-top: 3px solid #333; backdrop-filter: blur(5px); transition: border-color .2s, transform .15s; cursor: default; }
+        .menu-item:hover { border-top-color: var(--gold); transform: translateY(-2px); }
         .item-info { flex-grow: 1; margin-bottom: 10px; }
-        .item-info h3 { font-size: 1.1rem; color: #fff; margin-bottom: 5px; line-height: 1.2; }
-        .item-info p { font-size: 0.8rem; color: #aaa; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .item-price { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--price-gold); font-weight: bold; }
+        .item-info h3 { font-size: 1rem; color: #fff; margin-bottom: 5px; line-height: 1.3; }
+        .item-info p { font-size: .78rem; color: #999; font-style: italic; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .item-price { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--price-gold); font-weight: bold; }
 
-        footer { text-align: center; padding: 30px 20px; margin-top: 50px; border-top: 1px solid #222; background: rgba(0,0,0,0.6); position: relative; z-index: 5; }
+        /* FOOTER */
+        footer { text-align: center; padding: 28px 20px; margin-top: 50px; border-top: 1px solid #222; background: rgba(0,0,0,.6); position: relative; z-index: 5; color: #555; font-size: .9rem; }
+        .footer-note { color: #555; }
+        .footer-gold { color: var(--gold); font-weight: bold; }
 
-        .side-menu { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; background: rgba(20, 20, 20, 0.35); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); z-index: 999; border-right: 1px solid rgba(212, 175, 55, 0.3); transition: 0.4s ease-in-out; padding: 30px 20px; box-shadow: 5px 0 25px rgba(0,0,0,0.6); }
+        /* SIDE MENU */
+        .side-menu { position: fixed; top: 0; left: -320px; width: 300px; height: 100vh; background: rgba(15,15,15,.92); backdrop-filter: blur(25px); z-index: 999; border-right: 1px solid rgba(212,175,55,.3); transition: .4s ease-in-out; padding: 30px 20px; box-shadow: 5px 0 30px rgba(0,0,0,.7); overflow-y: auto; }
         .side-menu.open { left: 0; }
-        .close-side { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: var(--gold); font-size: 2rem; cursor: pointer; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
-        .side-menu h2 { color: var(--gold); text-align: center; margin-bottom: 30px; font-family: 'Cinzel', serif; margin-top: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; text-shadow: 0 2px 5px rgba(0,0,0,0.9); }
-        .info-block { margin-bottom: 25px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border-left: 3px solid var(--gold); }
-        .info-block label { display: block; color: var(--gold); font-weight: bold; font-size: 0.9rem; margin-bottom: 5px; }
-        .info-block p { color: #fff; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; }
-        .info-block i { width: 20px; text-align: center; color: #aaa; }
+        .close-side { position: absolute; top: 15px; right: 15px; background: transparent; border: none; color: var(--gold); font-size: 2rem; cursor: pointer; line-height: 1; }
+        .side-menu h2 { color: var(--gold); text-align: center; margin-bottom: 24px; font-family: 'Cinzel', serif; margin-top: 20px; border-bottom: 1px solid rgba(255,255,255,.1); padding-bottom: 10px; }
+        .info-block { margin-bottom: 16px; background: rgba(0,0,0,.4); padding: 13px 15px; border-radius: 8px; border-left: 3px solid var(--gold); }
+        .info-block label { display: block; color: var(--gold); font-weight: bold; font-size: .82rem; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .5px; }
+        .info-block p { color: #ddd; font-size: .97rem; display: flex; align-items: center; gap: 10px; }
+        .info-block i { width: 18px; text-align: center; color: #777; flex-shrink: 0; }
+        .info-block a { color: #ddd; text-decoration: none; }
+        .info-block a:hover { color: var(--gold); }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .contact-modal { background: #1a1a1a; width: 90%; max-width: 400px; border-radius: 12px; border: 1px solid var(--gold); padding: 25px; position: relative; }
-        .close-modal { position: absolute; top: 10px; right: 15px; color: #fff; font-size: 1.5rem; cursor: pointer; }
-        .contact-modal h2 { color: var(--gold); margin-bottom: 20px; text-align: center; }
-        .contact-form input, .contact-form textarea { width: 100%; padding: 12px; margin-bottom: 15px; background: #000; border: 1px solid #444; color: #fff; border-radius: 6px; font-family: 'Lato', sans-serif; }
-        .contact-form button { width: 100%; padding: 15px; background: var(--gold); color: #000; font-weight: bold; font-size: 1.1rem; border: none; border-radius: 6px; cursor: pointer; }
-        #formMessage { text-align: center; font-weight: bold; margin-top: 15px; display: none; }
+        /* CONTACT MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.85); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(6px); padding: 20px; }
+        .modal-overlay.open { display: flex; }
+        .contact-modal { background: #1a1a1a; width: 100%; max-width: 400px; border-radius: 12px; border: 1px solid var(--gold); padding: 28px; position: relative; }
+        .close-modal { position: absolute; top: 10px; right: 15px; color: #fff; font-size: 1.5rem; cursor: pointer; background: none; border: none; line-height: 1; }
+        .contact-modal h2 { color: var(--gold); margin-bottom: 20px; text-align: center; font-family: 'Cinzel', serif; }
+        .contact-form input, .contact-form textarea { width: 100%; padding: 11px 13px; margin-bottom: 12px; background: #0a0a0a; border: 1px solid #333; color: #fff; border-radius: 6px; font-family: 'Lato', sans-serif; font-size: .95rem; outline: none; transition: border-color .2s; }
+        .contact-form input:focus, .contact-form textarea:focus { border-color: var(--gold); }
+        .contact-form button { width: 100%; padding: 13px; background: var(--gold); color: #000; font-weight: bold; font-size: 1rem; border: none; border-radius: 6px; cursor: pointer; }
+        .contact-form button:hover { background: #c09a20; }
+        #formMessage { text-align: center; font-weight: bold; margin-top: 14px; min-height: 20px; font-size: .92rem; }
+
+        /* SCROLL TO TOP */
+        #scrollTop { position: fixed; bottom: 24px; right: 20px; z-index: 100; background: var(--gold); color: #000; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,.5); transition: .2s; }
+        #scrollTop:hover { background: #c09a20; }
+        #scrollTop.visible { display: flex; }
 
         .hidden { display: none !important; }
+
+        @media (max-width: 500px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .brand-name { font-size: 1.3rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="bg-decor"><i class="fas fa-mug-hot bg-icon icon-tea"></i><i class="fas fa-dice bg-icon icon-dice"></i><i class="fas fa-layer-group bg-icon icon-tiles"></i></div>
+<div class="bg-decor">
+    <i class="fas fa-mug-hot bg-icon icon-tea"></i>
+    <i class="fas fa-dice bg-icon icon-dice"></i>
+    <i class="fas fa-layer-group bg-icon icon-tiles"></i>
+</div>
 
-    <div class="top-nav">
-        <button class="nav-btn" onclick="openSideMenu()"><i class="fas fa-bars"></i></button>
-        <button class="nav-btn" onclick="openContact()"><i class="fas fa-comment-dots"></i></button>
+<div class="top-nav">
+    <button class="nav-btn" onclick="openSideMenu()" aria-label="Menü"><i class="fas fa-bars"></i></button>
+    <button class="nav-btn" onclick="openContact()" aria-label="İletişim"><i class="fas fa-comment-dots"></i></button>
+</div>
+
+<header>
+    <div class="logo-container">
+        <img id="siteLogo" src="" alt="" style="display:none">
+        <div id="brandName" class="brand-name" style="display:none">33 YAN 2</div>
     </div>
+    <div id="brandSubtitle" class="brand-subtitle">OKEY &amp; ÇAY SALONU</div>
+</header>
 
-    <header>
-        <div class="logo-container"><img id="siteLogo" src="" alt="33 YAN 2" style="display:none"></div>
-        <div class="brand-subtitle">OKEY & ÇAY SALONU</div>
-    </header>
+<div class="search-container">
+    <i class="fas fa-search"></i>
+    <input type="text" id="searchInput" placeholder="Menüde ara..." oninput="searchMenu(this.value)">
+</div>
 
-    <div class="search-container"><i class="fas fa-search"></i><input type="text" id="searchInput" placeholder="Menüde lezzet ara..." onkeyup="searchMenu()"></div>
-    <div class="categories-wrapper"><div class="categories" id="categoryList"></div></div>
-    <div class="menu-container" id="menuContent"><div style="text-align:center; padding:50px; color:var(--gold);"><i class="fas fa-spinner fa-spin"></i> Menü Yükleniyor...</div></div>
-    <footer><div class="footer-note">33 YAN 2 | Keyifli Oyunlar</div></footer>
+<div class="categories-wrapper">
+    <div class="categories" id="categoryList"></div>
+</div>
 
-    <div id="sideMenu" class="side-menu">
-        <button class="close-side" onclick="closeSideMenu()">&times;</button>
-        <h2>Mekan Bilgileri</h2>
-        <div class="info-block"><label>Adres</label><p><i class="fas fa-map-marker-alt"></i> <span id="sAdres">Yükleniyor...</span></p></div>
-        <div class="info-block"><label>Çalışma Saatleri</label><p><i class="far fa-clock"></i> <span id="sSaatler">Yükleniyor...</span></p></div>
-        <div class="info-block"><label>Wi-Fi Şifresi</label><p><i class="fas fa-wifi"></i> <span id="sWifi">Yükleniyor...</span></p></div>
-        <div class="info-block"><label>Instagram</label><p><i class="fab fa-instagram"></i> <a id="sInstaLink" href="#" target="_blank" style="color:#fff; text-decoration:none;">@<span id="sInsta">Yükleniyor...</span></a></p></div>
+<div class="menu-container" id="menuContent">
+    <div style="text-align:center;padding:60px;color:var(--gold)"><i class="fas fa-spinner fa-spin fa-2x"></i></div>
+</div>
+
+<footer>
+    <div class="footer-note"><span id="footerBrand" class="footer-gold">33 YAN 2</span> | Keyifli Oyunlar &amp; Güzel Anlar</div>
+</footer>
+
+<!-- SIDE MENU -->
+<div id="sideMenu" class="side-menu">
+    <button class="close-side" onclick="closeSideMenu()" aria-label="Kapat">&times;</button>
+    <h2>Mekan Bilgileri</h2>
+    <div class="info-block"><label><i class="fas fa-map-marker-alt"></i> Adres</label><p><span id="sAdres">—</span></p></div>
+    <div class="info-block"><label><i class="far fa-clock"></i> Çalışma Saatleri</label><p><span id="sSaatler">—</span></p></div>
+    <div class="info-block"><label><i class="fas fa-wifi"></i> Wi-Fi Şifresi</label><p><span id="sWifi">—</span></p></div>
+    <div class="info-block"><label><i class="fab fa-instagram"></i> Instagram</label><p><a id="sInstaLink" href="#" target="_blank" rel="noopener">@<span id="sInsta">—</span></a></p></div>
+</div>
+
+<!-- OVERLAY (side menu close) -->
+<div id="sideOverlay" onclick="closeSideMenu()" style="display:none;position:fixed;inset:0;z-index:998;background:rgba(0,0,0,.5)"></div>
+
+<!-- CONTACT MODAL -->
+<div id="contactModal" class="modal-overlay">
+    <div class="contact-modal">
+        <button class="close-modal" onclick="closeContact()" aria-label="Kapat">&times;</button>
+        <h2>Bize Ulaşın</h2>
+        <form id="contactForm" class="contact-form" onsubmit="gonderMail(event)">
+            <input type="text" id="mAd" placeholder="Adınız Soyadınız" required>
+            <input type="tel" id="mTel" placeholder="Telefon Numaranız" required>
+            <textarea id="mMesaj" placeholder="Mesajınız..." rows="4" required></textarea>
+            <button type="submit" id="btnGonder"><i class="fas fa-paper-plane"></i> Gönder</button>
+        </form>
+        <div id="formMessage"></div>
     </div>
+</div>
 
-    <div id="contactModal" class="modal-overlay">
-        <div class="contact-modal">
-            <span class="close-modal" onclick="closeContact()">&times;</span>
-            <h2>Bize Mesaj Gönderin</h2>
-            <form id="contactForm" class="contact-form" onsubmit="gonderMail(event)">
-                <input type="text" id="mAd" placeholder="Adınız Soyadınız" required>
-                <input type="tel" id="mTel" placeholder="Telefon Numaranız" required>
-                <textarea id="mMesaj" placeholder="Mesajınız, görüşleriniz veya şikayetiniz..." rows="4" required></textarea>
-                <button type="submit" id="btnGonder"><i class="fas fa-paper-plane"></i> Gönder</button>
-            </form>
-            <div id="formMessage"></div>
-        </div>
-    </div>
+<!-- SCROLL TO TOP -->
+<button id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Yukarı"><i class="fas fa-chevron-up"></i></button>
 
-    <script>
-        fetch('ayarlar.json?v=' + new Date().getTime())
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('sAdres').innerText = data.adres || "Belirtilmedi";
-                document.getElementById('sSaatler').innerText = data.saatler || "Belirtilmedi";
-                document.getElementById('sWifi').innerText = data.wifi || "Belirtilmedi";
-                document.getElementById('sInsta').innerText = data.instagram || "33yan_2";
-                document.getElementById('sInstaLink').href = "https://instagram.com/" + (data.instagram || "33yan_2");
-                if (data.logo) {
-                    const img = document.getElementById('siteLogo');
-                    img.src = data.logo + '?v=' + Date.now();
-                    img.style.display = '';
-                }
-            }).catch(e => console.log("Ayarlar yüklenemedi."));
+<script>
+    // ===== SETTINGS =====
+    fetch('ayarlar.json?v=' + Date.now())
+        .then(r => r.json())
+        .then(d => {
+            const mekanAdi = d.mekan_adi || '33 YAN 2';
+            const altyazi  = d.altyazi   || 'OKEY & ÇAY SALONU';
 
-        const categoryList = document.getElementById('categoryList');
-        const menuContent = document.getElementById('menuContent');
+            document.getElementById('pageTitle').textContent = mekanAdi + ' | Menü';
+            document.getElementById('brandSubtitle').textContent = altyazi;
+            document.getElementById('footerBrand').textContent  = mekanAdi;
 
-        fetch('menu.json?v=' + new Date().getTime())
-            .then(res => res.json())
-            .then(data => { menuContent.innerHTML = ''; initMenu(data); })
-            .catch(err => { menuContent.innerHTML = '<div style="color:red; text-align:center;">Menü yüklenemedi.</div>'; });
-
-        function initMenu(menuVerisi) {
-            let isFirst = true;
-            for (const [kategoriAdi, kategoriVerisi] of Object.entries(menuVerisi)) {
-                const btn = document.createElement('button');
-                btn.className = `cat-btn ${isFirst ? 'active' : ''}`;
-                btn.innerHTML = `<div class="mini-tile ${kategoriVerisi.tileColor}">${kategoriVerisi.tileNum}</div> ${kategoriAdi}`;
-                btn.onclick = () => {
-                    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active');
-                    const el = document.getElementById(kategoriAdi.replace(/\s+/g, '-'));
-                    if(el) window.scrollTo({ top: (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130, behavior: "smooth" });
-                };
-                categoryList.appendChild(btn);
-
-                const sectionDiv = document.createElement('div');
-                sectionDiv.className = 'menu-section';
-                sectionDiv.id = kategoriAdi.replace(/\s+/g, '-');
-                sectionDiv.innerHTML = `<h2 class="section-title"><span>${kategoriAdi}</span></h2>`;
-
-                const gridDiv = document.createElement('div');
-                gridDiv.className = 'menu-grid';
-
-                if(kategoriVerisi.alt_kategoriler) {
-                    for (const [altKatAdi, urunler] of Object.entries(kategoriVerisi.alt_kategoriler)) {
-                        if(altKatAdi !== "Genel") { gridDiv.innerHTML += `<div class="alt-kategori-baslik">${altKatAdi}</div>`; }
-                        urunler.forEach(urun => {
-                            gridDiv.innerHTML += `
-                                <div class="menu-item">
-                                    <div class="item-info"><h3 class="item-name">${urun.ad}</h3>${urun.aciklama ? `<p>${urun.aciklama}</p>` : ''}</div>
-                                    <div class="item-price">${urun.fiyat}₺</div>
-                                </div>
-                            `;
-                        });
-                    }
-                } else if(kategoriVerisi.items) {
-                    kategoriVerisi.items.forEach(urun => {
-                        gridDiv.innerHTML += `
-                            <div class="menu-item">
-                                <div class="item-info"><h3 class="item-name">${urun.ad}</h3>${urun.aciklama ? `<p>${urun.aciklama}</p>` : ''}</div>
-                                <div class="item-price">${urun.fiyat}₺</div>
-                            </div>
-                        `;
-                    });
-                }
-
-                sectionDiv.appendChild(gridDiv); menuContent.appendChild(sectionDiv); isFirst = false;
+            if (d.logo) {
+                const img = document.getElementById('siteLogo');
+                img.src = d.logo + '?v=' + Date.now();
+                img.alt = mekanAdi;
+                img.style.display = '';
+                document.getElementById('brandName').style.display = 'none';
+            } else {
+                document.getElementById('brandName').textContent = mekanAdi;
+                document.getElementById('brandName').style.display = '';
             }
-        }
 
-        function searchMenu() {
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            document.querySelectorAll('.menu-section').forEach(section => {
-                let items = section.querySelectorAll('.menu-item'); let count = 0;
-                items.forEach(item => {
-                    if (item.querySelector('.item-name').innerText.toLowerCase().includes(input)) { item.classList.remove('hidden'); count++; }
-                    else { item.classList.add('hidden'); }
+            document.getElementById('sAdres').textContent  = d.adres     || 'Belirtilmedi';
+            document.getElementById('sSaatler').textContent = d.saatler   || 'Belirtilmedi';
+            document.getElementById('sWifi').textContent   = d.wifi      || 'Belirtilmedi';
+            document.getElementById('sInsta').textContent  = d.instagram || '—';
+            if (d.instagram) {
+                document.getElementById('sInstaLink').href = 'https://instagram.com/' + d.instagram;
+            }
+        })
+        .catch(() => {
+            document.getElementById('brandName').style.display = '';
+        });
+
+    // ===== MENU =====
+    const categoryList = document.getElementById('categoryList');
+    const menuContent  = document.getElementById('menuContent');
+    let allSections = [];
+
+    fetch('menu.json?v=' + Date.now())
+        .then(r => r.json())
+        .then(data => { menuContent.innerHTML = ''; buildMenu(data); setupScrollSpy(); })
+        .catch(() => { menuContent.innerHTML = '<div style="color:#f55;text-align:center;padding:40px">Menü yüklenemedi.</div>'; });
+
+    function buildMenu(veri) {
+        let first = true;
+        for (const [catAdi, catData] of Object.entries(veri)) {
+            const sectionId = 'cat-' + catAdi.replace(/\s+/g, '-');
+
+            // Category button
+            const btn = document.createElement('button');
+            btn.className = 'cat-btn' + (first ? ' active' : '');
+            btn.dataset.target = sectionId;
+            btn.innerHTML = `<div class="mini-tile ${catData.tileColor || ''}">${catData.tileNum || ''}</div>${catAdi}`;
+            btn.onclick = () => scrollToSection(sectionId, btn);
+            categoryList.appendChild(btn);
+
+            // Section
+            const section = document.createElement('div');
+            section.className = 'menu-section';
+            section.id = sectionId;
+            section.innerHTML = `<h2 class="section-title">${catAdi}</h2>`;
+
+            const grid = document.createElement('div');
+            grid.className = 'menu-grid';
+
+            const subcats = catData.alt_kategoriler || (catData.items ? { 'Genel': catData.items } : {});
+            for (const [subAdi, urunler] of Object.entries(subcats)) {
+                if (subAdi !== 'Genel') {
+                    const h = document.createElement('div');
+                    h.className = 'alt-kategori-baslik';
+                    h.textContent = subAdi;
+                    grid.appendChild(h);
+                }
+                (urunler || []).forEach(u => {
+                    const el = document.createElement('div');
+                    el.className = 'menu-item';
+                    el.innerHTML = `
+                        <div class="item-info">
+                            <h3 class="item-name">${escHtml(u.ad)}</h3>
+                            ${u.aciklama ? `<p>${escHtml(u.aciklama)}</p>` : ''}
+                        </div>
+                        <div class="item-price">${fmtFiyat(u.fiyat)}</div>`;
+                    grid.appendChild(el);
                 });
-                if (count === 0) section.classList.add('hidden'); else section.classList.remove('hidden');
+            }
+            section.appendChild(grid);
+            menuContent.appendChild(section);
+            allSections.push({ id: sectionId, el: section });
+            first = false;
+        }
+    }
+
+    function fmtFiyat(n) {
+        const v = parseFloat(n) || 0;
+        return v % 1 === 0 ? v + ' ₺' : v.toFixed(2).replace('.', ',') + ' ₺';
+    }
+
+    function scrollToSection(id, btn) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const offset = el.getBoundingClientRect().top + window.scrollY - 90;
+        window.scrollTo({ top: offset, behavior: 'smooth' });
+        setActiveBtn(btn);
+    }
+
+    function setActiveBtn(btn) {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    // ===== SCROLLSPY =====
+    function setupScrollSpy() {
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const btn = categoryList.querySelector(`[data-target="${entry.target.id}"]`);
+                    if (btn) setActiveBtn(btn);
+                }
             });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+
+        allSections.forEach(s => observer.observe(s.el));
+    }
+
+    // ===== SEARCH =====
+    function searchMenu(q) {
+        q = q.toLowerCase().trim();
+        document.querySelectorAll('.menu-section').forEach(section => {
+            let visible = 0;
+            section.querySelectorAll('.menu-item').forEach(item => {
+                const match = !q || item.querySelector('.item-name').textContent.toLowerCase().includes(q);
+                item.classList.toggle('hidden', !match);
+                if (match) visible++;
+            });
+            section.classList.toggle('hidden', visible === 0);
+        });
+    }
+
+    // ===== SIDE MENU =====
+    function openSideMenu() {
+        document.getElementById('sideMenu').classList.add('open');
+        document.getElementById('sideOverlay').style.display = '';
+    }
+    function closeSideMenu() {
+        document.getElementById('sideMenu').classList.remove('open');
+        document.getElementById('sideOverlay').style.display = 'none';
+    }
+
+    // ===== CONTACT =====
+    function openContact()  { document.getElementById('contactModal').classList.add('open'); }
+    function closeContact() {
+        document.getElementById('contactModal').classList.remove('open');
+        document.getElementById('formMessage').textContent = '';
+        document.getElementById('formMessage').style.color = '';
+    }
+
+    async function gonderMail(e) {
+        e.preventDefault();
+        const btn = document.getElementById('btnGonder');
+        const msg = document.getElementById('formMessage');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+        btn.disabled = true;
+        const fd = new FormData();
+        fd.append('ajax_mail', '1');
+        fd.append('ad_soyad', document.getElementById('mAd').value);
+        fd.append('telefon',  document.getElementById('mTel').value);
+        fd.append('mesaj',    document.getElementById('mMesaj').value);
+        try {
+            const res  = await fetch('index.php', { method: 'POST', body: fd });
+            const data = await res.json();
+            msg.style.display = 'block';
+            if (data.status === 'success') {
+                msg.style.color = '#4caf50';
+                msg.textContent = 'Mesajınız iletildi, teşekkürler!';
+                document.getElementById('contactForm').reset();
+            } else {
+                msg.style.color = '#f55';
+                msg.textContent = 'Gönderilemedi, tekrar deneyin.';
+            }
+        } catch {
+            msg.style.display = 'block';
+            msg.style.color = '#f55';
+            msg.textContent = 'Bağlantı hatası!';
         }
+        btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gönder';
+        btn.disabled = false;
+    }
 
-        function openSideMenu() { document.getElementById('sideMenu').classList.add('open'); }
-        function closeSideMenu() { document.getElementById('sideMenu').classList.remove('open'); }
+    // ===== SCROLL TOP =====
+    window.addEventListener('scroll', () => {
+        document.getElementById('scrollTop').classList.toggle('visible', window.scrollY > 400);
+    });
 
-        function openContact() { document.getElementById('contactModal').style.display = 'flex'; }
-        function closeContact() { document.getElementById('contactModal').style.display = 'none'; document.getElementById('formMessage').style.display = 'none'; }
-
-        async function gonderMail(e) {
-            e.preventDefault();
-            let btn = document.getElementById('btnGonder'); let msgBox = document.getElementById('formMessage');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...'; btn.disabled = true;
-            let fd = new FormData(); fd.append('ajax_mail', '1'); fd.append('ad_soyad', document.getElementById('mAd').value); fd.append('telefon', document.getElementById('mTel').value); fd.append('mesaj', document.getElementById('mMesaj').value);
-            try {
-                let res = await fetch('index.php', { method: 'POST', body: fd }); let data = await res.json();
-                msgBox.style.display = 'block';
-                if(data.status === 'success') { msgBox.style.color = 'var(--success)'; msgBox.innerText = 'Mesajınız başarıyla iletildi!'; document.getElementById('contactForm').reset(); }
-                else { msgBox.style.color = 'var(--danger)'; msgBox.innerText = 'Sunucu kaynaklı bir hata oluştu.'; }
-            } catch(e) { msgBox.style.display = 'block'; msgBox.style.color = 'var(--danger)'; msgBox.innerText = 'Bağlantı hatası!'; }
-            btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gönder'; btn.disabled = false;
-        }
-    </script>
+    // ===== UTILS =====
+    function escHtml(s) {
+        return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+</script>
 </body>
 </html>

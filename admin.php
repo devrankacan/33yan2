@@ -617,6 +617,8 @@ body{background:#111;color:#eee;font-family:Arial,sans-serif;min-height:100vh;}
     </div>
 
     <div class="settings-grid">
+      <div class="setting-group"><label><i class="fas fa-store"></i> Mekan Adı</label><input type="text" id="set-mekan-adi" placeholder="33 YAN 2"></div>
+      <div class="setting-group"><label><i class="fas fa-tag"></i> Alt Başlık</label><input type="text" id="set-altyazi" placeholder="OKEY &amp; ÇAY SALONU"></div>
       <div class="setting-group"><label><i class="fas fa-map-marker-alt"></i> Adres</label><input type="text" id="set-adres" placeholder="Mekan adresi"></div>
       <div class="setting-group"><label><i class="far fa-clock"></i> Çalışma Saatleri</label><input type="text" id="set-saatler" placeholder="Her Gün 08:00 - 02:00"></div>
       <div class="setting-group"><label><i class="fas fa-wifi"></i> Wi-Fi Şifresi</label><input type="text" id="set-wifi"></div>
@@ -1129,11 +1131,13 @@ async function saveMenu() {
 
 // ===== AYARLAR =====
 function renderAyarlar() {
-    document.getElementById('set-adres').value   = ayarlarData.adres     || '';
-    document.getElementById('set-saatler').value = ayarlarData.saatler   || '';
-    document.getElementById('set-wifi').value    = ayarlarData.wifi      || '';
-    document.getElementById('set-insta').value   = ayarlarData.instagram || '';
-    document.getElementById('set-email').value   = ayarlarData.email     || '';
+    document.getElementById('set-mekan-adi').value = ayarlarData.mekan_adi || '';
+    document.getElementById('set-altyazi').value   = ayarlarData.altyazi   || '';
+    document.getElementById('set-adres').value     = ayarlarData.adres     || '';
+    document.getElementById('set-saatler').value   = ayarlarData.saatler   || '';
+    document.getElementById('set-wifi').value      = ayarlarData.wifi      || '';
+    document.getElementById('set-insta').value     = ayarlarData.instagram || '';
+    document.getElementById('set-email').value     = ayarlarData.email     || '';
     // Logo
     const logo = ayarlarData.logo || '';
     document.getElementById('set-logo-url').value = logo;
@@ -1150,6 +1154,8 @@ async function saveAyarlar() {
         ? document.getElementById('set-logo-url').value.trim()
         : (ayarlarData.logo || '');
     const data = {
+        mekan_adi: document.getElementById('set-mekan-adi').value,
+        altyazi:   document.getElementById('set-altyazi').value,
         adres:     document.getElementById('set-adres').value,
         saatler:   document.getElementById('set-saatler').value,
         wifi:      document.getElementById('set-wifi').value,
