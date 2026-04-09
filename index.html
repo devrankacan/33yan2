@@ -83,7 +83,7 @@
     </div>
 
     <header>
-        <div class="logo-container"><img src="logo.jpg" alt="33 YAN 2" onerror="this.src='https://via.placeholder.com/130x130/111/D4AF37?text=33+YAN+2'"></div>
+        <div class="logo-container"><img id="siteLogo" src="" alt="33 YAN 2" style="display:none"></div>
         <div class="brand-subtitle">OKEY & ÇAY SALONU</div>
     </header>
 
@@ -124,6 +124,11 @@
                 document.getElementById('sWifi').innerText = data.wifi || "Belirtilmedi";
                 document.getElementById('sInsta').innerText = data.instagram || "33yan_2";
                 document.getElementById('sInstaLink').href = "https://instagram.com/" + (data.instagram || "33yan_2");
+                if (data.logo) {
+                    const img = document.getElementById('siteLogo');
+                    img.src = data.logo + '?v=' + Date.now();
+                    img.style.display = '';
+                }
             }).catch(e => console.log("Ayarlar yüklenemedi."));
 
         const categoryList = document.getElementById('categoryList');

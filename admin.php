@@ -192,6 +192,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             else echo json_encode(['ok' => false, 'msg' => 'Geçersiz JSON!']);
             break;
 
+        case 'transfer_table':
+            $from = (string)($_POST['from_id'] ?? '');
+            $to   = (string)($_POST['to_id']   ?? '');
+            if (!$from || !$to || $from === $to) { echo json_encode(['ok'=>false,'msg'=>'Geçersiz masa!']); exit; }
+            $ad = readJson($ADISYON_FILE, []);
+            if (empty($ad[$from]['acik'])) { echo json_encode(['ok'=>false,'msg'=>'Kaynak masa kapalı!']); exit; }
+            if (empty($ad[$to]['acik'])) {
+                $ad[$to] = ['acik'=>true,'acilis'=>date('Y-m-d H:i:s'),'urunler'=>[],'toplam'=>0];
+            }
+            foreach ($ad[$from]['urunler'] as $urun) {
+                $found = false;
+                foreach ($ad[$to]['urunler'] as &$u) {
+                    if ($u['ad']===$urun['ad'] && $u['fiyat']==$urun['fiyat']) { $u['adet']+=$urun['adet']; $found=true; break; }
+                }
+                if (!$found) $ad[$to]['urunler'][] = $urun;
+            }
+            $t = 0; foreach ($ad[$to]['urunler'] as $u) $t += $u['fiyat']*$u['adet'];
+            $ad[$to]['toplam'] = $t;
+            unset($ad[$from]);
+            writeJson($ADISYON_FILE, $ad);
+            echo json_encode(['ok'=>true]);
+            break;
+
+        case 'upload_logo':
+            header('Content-Type: application/json; charset=utf-8');
+            if (empty($_FILES['logo'])) { echo json_encode(['ok'=>false,'msg'=>'Dosya yok!']); exit; }
+            $file = $_FILES['logo'];
+            $allowed = ['image/jpeg','image/png','image/gif','image/webp','image/svg+xml'];
+            if (!in_array($file['type'], $allowed)) { echo json_encode(['ok'=>false,'msg'=>'Geçersiz dosya türü!']); exit; }
+            if ($file['size'] > 2*1024*1024) { echo json_encode(['ok'=>false,'msg'=>'Dosya 2MB\'dan büyük olmamalı!']); exit; }
+            $uploadDir = __DIR__ . '/uploads/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            $ext   = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+            $fname = 'logo.' . $ext;
+            if (move_uploaded_file($file['tmp_name'], $uploadDir . $fname)) {
+                $logoUrl = 'uploads/' . $fname;
+                $ayarlar = readJson($AYARLAR_FILE, []);
+                $ayarlar['logo'] = $logoUrl;
+                writeJson($AYARLAR_FILE, $ayarlar);
+                echo json_encode(['ok'=>true,'url'=>$logoUrl]);
+            } else {
+                echo json_encode(['ok'=>false,'msg'=>'Yükleme başarısız!']);
+            }
+            exit;
+
         default:
             echo json_encode(['ok' => false, 'msg' => 'Bilinmeyen işlem']);
     }
@@ -382,6 +427,33 @@ body{background:#111;color:#eee;font-family:Arial,sans-serif;min-height:100vh;}
 #ayarlarStatus.ok{color:#4caf50;}
 #ayarlarStatus.err{color:#f55;}
 
+/* TRANSFER UI */
+.btn-transfer-open{background:#1565c0;color:#fff;border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:.82rem;white-space:nowrap;}
+.btn-transfer-open:hover{background:#0d47a1;}
+.transfer-ui{background:#1a1a1a;border-bottom:1px solid #2a2a2a;padding:10px 18px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.transfer-ui span{color:#888;font-size:.88rem;}
+.transfer-ui select{background:#0a0a0a;border:1px solid #333;color:#fff;padding:7px 10px;border-radius:6px;font-size:.88rem;outline:none;flex:1;min-width:140px;}
+.btn-do-transfer{background:#2e7d32;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:bold;}
+.btn-do-transfer:hover{background:#1b5e20;}
+.btn-cancel-transfer{background:#333;color:#ccc;border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:.85rem;}
+.btn-cancel-transfer:hover{background:#444;}
+
+/* LOGO SECTION */
+.logo-section{background:#1c1c1c;border-radius:8px;margin:16px;padding:18px;border-left:3px solid #D4AF37;max-width:680px;}
+.logo-section-title{color:#D4AF37;font-weight:bold;font-size:.9rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px;}
+.logo-tabs{display:flex;gap:6px;margin-bottom:14px;}
+.logo-tab{background:#2a2a2a;color:#888;border:1px solid #333;padding:7px 16px;border-radius:6px;cursor:pointer;font-size:.85rem;}
+.logo-tab.active{background:#D4AF37;color:#000;border-color:#D4AF37;font-weight:bold;}
+#logoUrlSection input{width:100%;background:#0a0a0a;border:1px solid #333;color:#fff;padding:10px 12px;border-radius:6px;font-size:.92rem;outline:none;margin-bottom:6px;}
+#logoUrlSection input:focus{border-color:#D4AF37;}
+#logoUrlSection small{color:#555;font-size:.8rem;}
+.file-pick-btn{display:inline-block;background:#2a2a2a;color:#ccc;border:1px solid #444;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:.85rem;}
+.file-pick-btn:hover{border-color:#D4AF37;color:#D4AF37;}
+.btn-upload-logo{background:#D4AF37;color:#000;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:bold;margin-left:6px;}
+.btn-upload-logo:hover{background:#b8971e;}
+.logo-preview-wrap{margin-top:14px;}
+#logoPreview{max-width:140px;max-height:140px;border-radius:10px;border:1px solid #333;object-fit:contain;background:#0a0a0a;}
+
 @media(max-width:650px){
   .modal-body{flex-direction:column;}
   .order-panel{width:100%;border-right:none;border-bottom:1px solid #2a2a2a;}
@@ -462,6 +534,31 @@ body{background:#111;color:#eee;font-family:Arial,sans-serif;min-height:100vh;}
   <!-- AYARLAR -->
   <div id="tab-ayarlar" class="tab-pane">
     <div class="tab-toolbar"><span class="tab-title"><i class="fas fa-cog"></i> Mekan Ayarları</span></div>
+
+    <!-- LOGO -->
+    <div class="logo-section">
+      <div class="logo-section-title"><i class="fas fa-image"></i> Logo</div>
+      <div class="logo-tabs">
+        <button id="btnLogoUrl"  class="logo-tab active" onclick="setLogoMode('url')">URL ile</button>
+        <button id="btnLogoFile" class="logo-tab"        onclick="setLogoMode('file')">Dosya Yükle</button>
+      </div>
+      <div id="logoUrlSection">
+        <input type="text" id="set-logo-url" placeholder="https://site.com/logo.png">
+        <small>URL'yi kaydetmek için alttaki "Ayarları Kaydet" butonunu kullanın.</small>
+      </div>
+      <div id="logoFileSection" style="display:none">
+        <label class="file-pick-btn"><i class="fas fa-upload"></i> Dosya Seç
+          <input type="file" id="set-logo-file" accept="image/*" onchange="previewLogo(this)" style="display:none">
+        </label>
+        <button onclick="uploadLogo()" class="btn-upload-logo"><i class="fas fa-cloud-upload-alt"></i> Yükle</button>
+        <span id="uploadLogoStatus" style="font-size:.85rem;margin-left:8px;"></span>
+      </div>
+      <div class="logo-preview-wrap">
+        <img id="logoPreview" src="" alt="Logo önizleme" style="display:none">
+        <span id="logoPreviewEmpty" style="color:#555;font-size:.85rem;">Henüz logo yok</span>
+      </div>
+    </div>
+
     <div class="settings-grid">
       <div class="setting-group"><label><i class="fas fa-map-marker-alt"></i> Adres</label><input type="text" id="set-adres" placeholder="Mekan adresi"></div>
       <div class="setting-group"><label><i class="far fa-clock"></i> Çalışma Saatleri</label><input type="text" id="set-saatler" placeholder="Her Gün 08:00 - 02:00"></div>
@@ -481,7 +578,14 @@ body{background:#111;color:#eee;font-family:Arial,sans-serif;min-height:100vh;}
     <div class="modal-header">
       <span id="modalMasaAd">Masa</span>
       <span id="modalMasaToplam" class="modal-toplam">0,00 ₺</span>
+      <button class="btn-transfer-open" onclick="toggleTransferUI()"><i class="fas fa-exchange-alt"></i> Masayı Aktar</button>
       <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div id="transferUI" style="display:none" class="transfer-ui">
+      <span>Aktar:</span>
+      <select id="transferSelect"></select>
+      <button onclick="doTransfer()" class="btn-do-transfer"><i class="fas fa-check"></i> Aktar</button>
+      <button onclick="toggleTransferUI()" class="btn-cancel-transfer">İptal</button>
     </div>
     <div class="modal-body">
       <div class="order-panel">
@@ -514,7 +618,7 @@ async function post(action, extra = {}) {
     const fd = new FormData();
     fd.append('action', action);
     for (const [k, v] of Object.entries(extra)) fd.append(k, v);
-    const res = await fetch('pos.php', { method: 'POST', body: fd });
+    const res = await fetch('admin.php', { method: 'POST', body: fd });
     return res.json();
 }
 
@@ -703,7 +807,32 @@ async function closeBill() {
 
 function closeModal() {
     document.getElementById('adisyonModal').style.display = 'none';
+    document.getElementById('transferUI').style.display = 'none';
     currentMasaId = null; currentMasaAd = '';
+}
+
+// ===== TRANSFER =====
+function toggleTransferUI() {
+    const ui = document.getElementById('transferUI');
+    const open = ui.style.display === 'none';
+    ui.style.display = open ? 'flex' : 'none';
+    if (open) {
+        const sel = document.getElementById('transferSelect');
+        sel.innerHTML = masalarData
+            .filter(m => String(m.id) !== String(currentMasaId))
+            .map(m => `<option value="${m.id}">${esc(m.ad)}${m.acik ? ' (Dolu)' : ' (Boş)'}</option>`)
+            .join('');
+    }
+}
+
+async function doTransfer() {
+    const toId  = document.getElementById('transferSelect').value;
+    const toAd  = document.getElementById('transferSelect').selectedOptions[0]?.text || '';
+    if (!toId) return;
+    if (!confirm(`"${currentMasaAd}" siparişi "${toAd}" masasına aktarılsın mı?`)) return;
+    const d = await post('transfer_table', { from_id: currentMasaId, to_id: toId });
+    if (d.ok) { closeModal(); await loadTables(); }
+    else alert(d.msg);
 }
 
 // ===== DRAG =====
@@ -914,22 +1043,76 @@ function renderAyarlar() {
     document.getElementById('set-wifi').value    = ayarlarData.wifi      || '';
     document.getElementById('set-insta').value   = ayarlarData.instagram || '';
     document.getElementById('set-email').value   = ayarlarData.email     || '';
+    // Logo
+    const logo = ayarlarData.logo || '';
+    document.getElementById('set-logo-url').value = logo;
+    const prev = document.getElementById('logoPreview');
+    const empty = document.getElementById('logoPreviewEmpty');
+    if (logo) { prev.src = logo + '?v=' + Date.now(); prev.style.display = ''; empty.style.display = 'none'; }
+    else       { prev.style.display = 'none'; empty.style.display = ''; }
 }
 
 async function saveAyarlar() {
     const st = document.getElementById('ayarlarStatus');
     st.className=''; st.textContent='Kaydediliyor...';
+    const logoUrl = document.getElementById('logoUrlSection').style.display !== 'none'
+        ? document.getElementById('set-logo-url').value.trim()
+        : (ayarlarData.logo || '');
     const data = {
         adres:     document.getElementById('set-adres').value,
         saatler:   document.getElementById('set-saatler').value,
         wifi:      document.getElementById('set-wifi').value,
         instagram: document.getElementById('set-insta').value,
-        email:     document.getElementById('set-email').value
+        email:     document.getElementById('set-email').value,
+        logo:      logoUrl
     };
     const d = await post('save_ayarlar', { data: JSON.stringify(data) });
     st.className = d.ok ? 'ok' : 'err';
     st.textContent = d.ok ? '✓ Kaydedildi!' : '✗ ' + d.msg;
-    if (d.ok) { ayarlarData = data; setTimeout(() => st.textContent='', 3000); }
+    if (d.ok) { ayarlarData = data; renderAyarlar(); setTimeout(() => st.textContent='', 3000); }
+}
+
+// ===== LOGO =====
+function setLogoMode(mode) {
+    document.getElementById('logoUrlSection').style.display  = mode === 'url'  ? '' : 'none';
+    document.getElementById('logoFileSection').style.display = mode === 'file' ? '' : 'none';
+    document.getElementById('btnLogoUrl').classList.toggle('active',  mode === 'url');
+    document.getElementById('btnLogoFile').classList.toggle('active', mode === 'file');
+}
+
+function previewLogo(input) {
+    if (!input.files || !input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        const prev = document.getElementById('logoPreview');
+        prev.src = e.target.result; prev.style.display = '';
+        document.getElementById('logoPreviewEmpty').style.display = 'none';
+    };
+    reader.readAsDataURL(input.files[0]);
+}
+
+async function uploadLogo() {
+    const fileInp = document.getElementById('set-logo-file');
+    const st = document.getElementById('uploadLogoStatus');
+    if (!fileInp.files || !fileInp.files[0]) { st.style.color='#f55'; st.textContent='Dosya seçilmedi!'; return; }
+    st.style.color='#888'; st.textContent='Yükleniyor...';
+    const fd = new FormData();
+    fd.append('action', 'upload_logo');
+    fd.append('logo', fileInp.files[0]);
+    try {
+        const res  = await fetch('admin.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) {
+            st.style.color='#4caf50'; st.textContent='✓ Yüklendi!';
+            ayarlarData.logo = data.url;
+            const prev = document.getElementById('logoPreview');
+            prev.src = data.url + '?v=' + Date.now(); prev.style.display='';
+            document.getElementById('logoPreviewEmpty').style.display='none';
+            setTimeout(() => st.textContent='', 3000);
+        } else {
+            st.style.color='#f55'; st.textContent='✗ ' + data.msg;
+        }
+    } catch(e) { st.style.color='#f55'; st.textContent='✗ Bağlantı hatası!'; }
 }
 
 // ===== UTILS =====
