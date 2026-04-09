@@ -103,14 +103,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             break;
 
         case 'close_bill':
-            $id  = (string)($_POST['masa_id'] ?? '');
-            $mad = trim($_POST['masa_ad'] ?? 'Masa');
-            $ad  = readJson($ADISYON_FILE, []);
+            $id    = (string)($_POST['masa_id'] ?? '');
+            $mad   = trim($_POST['masa_ad'] ?? 'Masa');
+            $odeme = trim($_POST['odeme'] ?? 'nakit');
+            $ad    = readJson($ADISYON_FILE, []);
             if (empty($ad[$id]['acik'])) { echo json_encode(['ok' => false, 'msg' => 'Masa zaten kapalı!']); exit; }
             $rep = readJson($RAPOR_FILE, []);
             $rep[] = ['masa_id' => $id, 'masa_ad' => $mad, 'acilis' => $ad[$id]['acilis'],
-                      'kapanis' => date('Y-m-d H:i:s'), 'urunler' => $ad[$id]['urunler'], 'toplam' => $ad[$id]['toplam']];
+                      'kapanis' => date('Y-m-d H:i:s'), 'urunler' => $ad[$id]['urunler'],
+                      'toplam' => $ad[$id]['toplam'], 'odeme' => $odeme];
             writeJson($RAPOR_FILE, $rep);
+            unset($ad[$id]);
+            writeJson($ADISYON_FILE, $ad);
+            echo json_encode(['ok' => true]);
+            break;
+
+        case 'kismi_tahsilat':
+            $id     = (string)($_POST['masa_id'] ?? '');
+            $mad    = trim($_POST['masa_ad'] ?? 'Masa');
+            $miktar = floatval($_POST['miktar'] ?? 0);
+            $odeme  = trim($_POST['odeme'] ?? 'nakit');
+            $ad     = readJson($ADISYON_FILE, []);
+            if (empty($ad[$id]['acik'])) { echo json_encode(['ok' => false, 'msg' => 'Masa kapalı!']); exit; }
+            if ($miktar <= 0) { echo json_encode(['ok' => false, 'msg' => 'Geçersiz miktar!']); exit; }
+            $rep = readJson($RAPOR_FILE, []);
+            $rep[] = ['masa_id' => $id, 'masa_ad' => $mad, 'acilis' => $ad[$id]['acilis'],
+                      'kapanis' => date('Y-m-d H:i:s'), 'urunler' => [],
+                      'toplam' => $miktar, 'odeme' => $odeme, 'kismi' => true];
+            writeJson($RAPOR_FILE, $rep);
+            echo json_encode(['ok' => true]);
+            break;
+
+        case 'komple_iptal':
+            $id = (string)($_POST['masa_id'] ?? '');
+            $ad = readJson($ADISYON_FILE, []);
             unset($ad[$id]);
             writeJson($ADISYON_FILE, $ad);
             echo json_encode(['ok' => true]);
@@ -427,6 +453,37 @@ body{background:#111;color:#eee;font-family:Arial,sans-serif;min-height:100vh;}
 #ayarlarStatus.ok{color:#4caf50;}
 #ayarlarStatus.err{color:#f55;}
 
+/* PAYMENT BUTTONS */
+.pay-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+.btn-pay{border:none;padding:10px 6px;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:bold;display:flex;align-items:center;justify-content:center;gap:5px;transition:.15s;}
+.btn-pay:hover{filter:brightness(1.15);}
+.btn-masaya-kaydet{background:#1565c0;color:#fff;}
+.btn-kismi{background:#e65100;color:#fff;}
+.btn-nakit{background:#2e7d32;color:#fff;}
+.btn-kart{background:#00838f;color:#fff;}
+.btn-iban{background:#6a1b9a;color:#fff;}
+.btn-iptal{background:#c62828;color:#fff;}
+.btn-kapat{background:#424242;color:#ccc;grid-column:1/-1;}
+
+/* MENU GRID */
+.menu-cat-tabs{display:flex;gap:6px;padding-bottom:10px;flex-wrap:wrap;border-bottom:1px solid #222;margin-bottom:10px;}
+.menu-cat-tab{background:#2a2a2a;color:#888;border:1px solid #333;padding:6px 16px;border-radius:20px;cursor:pointer;font-size:.82rem;font-weight:bold;white-space:nowrap;transition:.15s;}
+.menu-cat-tab:hover{border-color:#888;color:#ccc;}
+.menu-cat-tab.active{background:#D4AF37;color:#000;border-color:#D4AF37;}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.menu-grid-item{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:8px;padding:12px 8px;cursor:pointer;text-align:center;transition:.15s;}
+.menu-grid-item:hover{background:#2a2a2a;border-color:#D4AF37;}
+.menu-grid-item-name{color:#ddd;font-size:.85rem;margin-bottom:5px;line-height:1.3;}
+.menu-grid-item-price{color:#D4AF37;font-weight:bold;font-size:.92rem;}
+.menu-subcat-title{grid-column:1/-1;color:#D4AF37;font-size:.78rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px dashed #333;padding-bottom:5px;margin-top:8px;font-weight:bold;}
+
+/* RAPOR ODEME BADGE */
+.odeme-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.75rem;font-weight:bold;margin-left:6px;}
+.odeme-nakit{background:#2e7d32;color:#fff;}
+.odeme-kart{background:#00838f;color:#fff;}
+.odeme-iban{background:#6a1b9a;color:#fff;}
+.odeme-kismi{background:#e65100;color:#fff;}
+
 /* TRANSFER UI */
 .btn-transfer-open{background:#1565c0;color:#fff;border:none;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:.82rem;white-space:nowrap;}
 .btn-transfer-open:hover{background:#0d47a1;}
@@ -593,12 +650,19 @@ body{background:#111;color:#eee;font-family:Arial,sans-serif;min-height:100vh;}
         <div id="orderItems" class="order-items"></div>
         <div class="order-footer">
           <div class="order-total-row">TOPLAM: <strong id="orderTotal">0,00 ₺</strong></div>
-          <button class="btn-close-bill" onclick="closeBill()"><i class="fas fa-check-circle"></i> Hesabı Kapat</button>
+          <div class="pay-btns">
+            <button class="btn-pay btn-masaya-kaydet" onclick="closeModal()"><i class="fas fa-save"></i> Masaya Kaydet</button>
+            <button class="btn-pay btn-kismi" onclick="kismiTahsilat()"><i class="fas fa-plus"></i> Kısmi Tahsilat Al</button>
+            <button class="btn-pay btn-nakit" onclick="closeBill('nakit')"><i class="fas fa-money-bill-wave"></i> Nakit</button>
+            <button class="btn-pay btn-kart" onclick="closeBill('kart')"><i class="fas fa-credit-card"></i> Kart</button>
+            <button class="btn-pay btn-iban" onclick="closeBill('iban')"><i class="fas fa-university"></i> IBAN</button>
+            <button class="btn-pay btn-iptal" onclick="kompleIptal()"><i class="fas fa-trash"></i> Komple İptal</button>
+            <button class="btn-pay btn-kapat" onclick="closeModal()"><i class="fas fa-times"></i> Pencereyi Kapat</button>
+          </div>
         </div>
       </div>
       <div class="menu-panel">
-        <h4><i class="fas fa-utensils"></i> Menü</h4>
-        <div class="menu-search"><input type="text" id="menuSearchInp" placeholder="Ürün ara..." oninput="filterMenuItems(this.value)"></div>
+        <div class="menu-cat-tabs" id="menuCatTabs"></div>
         <div id="menuPanel" class="menu-panel-inner"></div>
       </div>
     </div>
@@ -755,35 +819,47 @@ async function changeQty(idx, delta) {
 }
 
 function renderMenuPanel() {
+    const tabs  = document.getElementById('menuCatTabs');
     const panel = document.getElementById('menuPanel');
+    tabs.innerHTML = ''; panel.innerHTML = '';
+    const cats = Object.keys(menuData);
+    if (!cats.length) return;
+    cats.forEach((catName, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'menu-cat-tab' + (i === 0 ? ' active' : '');
+        btn.textContent = catName;
+        btn.onclick = () => {
+            document.querySelectorAll('.menu-cat-tab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            showMenuCategory(catName);
+        };
+        tabs.appendChild(btn);
+    });
+    showMenuCategory(cats[0]);
+}
+
+function showMenuCategory(catName) {
+    const panel  = document.getElementById('menuPanel');
+    const catData = menuData[catName];
+    if (!catData) return;
     panel.innerHTML = '';
-    for (const [catName, catData] of Object.entries(menuData)) {
-        const catDiv  = document.createElement('div');
-        catDiv.className = 'menu-cat';
-        const catHead = document.createElement('div');
-        catHead.className = 'menu-cat-head';
-        catHead.textContent = catName;
-        const catBody = document.createElement('div');
-        catBody.className = 'menu-cat-body';
-        catHead.onclick = () => catBody.style.display = catBody.style.display === 'none' ? '' : 'none';
-        const subcats = catData.alt_kategoriler || {};
-        for (const [subName, items] of Object.entries(subcats)) {
-            const sh = document.createElement('div');
-            sh.className = 'menu-subcat-head';
-            sh.textContent = subName;
-            catBody.appendChild(sh);
-            (items || []).forEach(item => {
-                const el = document.createElement('div');
-                el.className = 'menu-item-btn';
-                el.innerHTML = `<span>${esc(item.ad)}</span><span class="menu-item-price">${fmtMoney(item.fiyat)}</span>`;
-                el.onclick = () => addToOrder(item.ad, item.fiyat);
-                catBody.appendChild(el);
-            });
-        }
-        catDiv.appendChild(catHead);
-        catDiv.appendChild(catBody);
-        panel.appendChild(catDiv);
+    const subcats = catData.alt_kategoriler || {};
+    const grid = document.createElement('div');
+    grid.className = 'menu-grid';
+    for (const [subName, items] of Object.entries(subcats)) {
+        const title = document.createElement('div');
+        title.className = 'menu-subcat-title';
+        title.textContent = subName;
+        grid.appendChild(title);
+        (items || []).forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'menu-grid-item';
+            el.innerHTML = `<div class="menu-grid-item-name">${esc(item.ad)}</div><div class="menu-grid-item-price">${fmtMoney(item.fiyat)}</div>`;
+            el.onclick = () => addToOrder(item.ad, item.fiyat);
+            grid.appendChild(el);
+        });
     }
+    panel.appendChild(grid);
 }
 
 async function addToOrder(ad, fiyat) {
@@ -798,9 +874,28 @@ function filterMenuItems(q) {
     });
 }
 
-async function closeBill() {
-    if (!confirm(`"${currentMasaAd}" hesabı kapatılsın mı?`)) return;
-    const d = await post('close_bill', { masa_id: currentMasaId, masa_ad: currentMasaAd });
+async function closeBill(odeme) {
+    const labels = {nakit:'Nakit', kart:'Kart', iban:'IBAN'};
+    if (!confirm(`"${currentMasaAd}" hesabı ${labels[odeme]||odeme} ile kapatılsın mı?`)) return;
+    const d = await post('close_bill', { masa_id: currentMasaId, masa_ad: currentMasaAd, odeme });
+    if (d.ok) { closeModal(); await loadTables(); }
+    else alert(d.msg);
+}
+
+async function kismiTahsilat() {
+    const miktar = prompt('Tahsil edilecek tutarı girin (₺):');
+    if (miktar === null) return;
+    const m = parseFloat(miktar);
+    if (!m || m <= 0) { alert('Geçersiz tutar!'); return; }
+    const odeme = prompt('Ödeme yöntemi: nakit / kart / iban') || 'nakit';
+    const d = await post('kismi_tahsilat', { masa_id: currentMasaId, masa_ad: currentMasaAd, miktar: m, odeme });
+    if (d.ok) { alert(`${fmtMoney(m)} tahsil edildi. Masa açık kaldı.`); }
+    else alert(d.msg);
+}
+
+async function kompleIptal() {
+    if (!confirm(`"${currentMasaAd}" adisyonu iptal edilsin mi? Kayıt tutulmaz.`)) return;
+    const d = await post('komple_iptal', { masa_id: currentMasaId });
     if (d.ok) { closeModal(); await loadTables(); }
     else alert(d.msg);
 }
@@ -909,18 +1004,22 @@ async function loadReports(filter, btn) {
     document.getElementById('raporToplam').textContent = fmtMoney(d.toplam || 0);
     const list = document.getElementById('raporList');
     if (!d.raporlar || !d.raporlar.length) { list.innerHTML = '<div class="rapor-empty">Bu dönemde kayıt yok</div>'; return; }
-    list.innerHTML = d.raporlar.map((r, i) => `
-        <div class="rapor-row">
+    const odemeLabels = {nakit:'Nakit',kart:'Kart',iban:'IBAN',kismi:'Kısmi'};
+    list.innerHTML = d.raporlar.map((r, i) => {
+        const badge = r.odeme ? `<span class="odeme-badge odeme-${r.odeme}">${odemeLabels[r.odeme]||r.odeme}${r.kismi?' (Kısmi)':''}</span>` : '';
+        const detay = r.kismi
+            ? `<div class="rapor-urun" style="color:#e65100"><span>Kısmi tahsilat</span><span></span><span>${fmtMoney(r.toplam)}</span></div>`
+            : (r.urunler||[]).map(u=>`<div class="rapor-urun"><span>${esc(u.ad)}</span><span>x${u.adet}</span><span>${fmtMoney(u.fiyat*u.adet)}</span></div>`).join('');
+        return `<div class="rapor-row">
           <div class="rapor-row-main" onclick="toggleDetail(${i})">
-            <span class="rapor-masa">${esc(r.masa_ad)}</span>
+            <span class="rapor-masa">${esc(r.masa_ad)}${badge}</span>
             <span class="rapor-kapanis">${r.kapanis}</span>
             <span class="rapor-tutar">${fmtMoney(r.toplam)}</span>
             <i class="fas fa-chevron-down"></i>
           </div>
-          <div class="rapor-detail" id="rd${i}" style="display:none">
-            ${(r.urunler||[]).map(u=>`<div class="rapor-urun"><span>${esc(u.ad)}</span><span>x${u.adet}</span><span>${fmtMoney(u.fiyat*u.adet)}</span></div>`).join('')}
-          </div>
-        </div>`).join('');
+          <div class="rapor-detail" id="rd${i}" style="display:none">${detay}</div>
+        </div>`;
+    }).join('');
 }
 function toggleDetail(i) { const el = document.getElementById('rd'+i); el.style.display = el.style.display==='none'?'':'none'; }
 
