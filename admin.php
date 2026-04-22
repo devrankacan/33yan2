@@ -28,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $path  = __DIR__ . '/' . $which;
         $decoded = json_decode($_POST['data'] ?? '', true);
         if ($decoded !== null) {
-            $written = file_put_contents($path, json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            $written = file_put_contents($path, json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
             if ($written !== false) {
                 echo json_encode(['ok' => true]);
             } else {
@@ -487,18 +487,25 @@ function collectMenuData() {
 }
 
 // ===== SAVE MENU =====
+let _menuSaving = false;
 async function saveMenu() {
+    if (_menuSaving) return;
+    _menuSaving = true;
+    const btn = document.querySelector('.btn-save');
+    btn.disabled = true;
     const statusEl = document.getElementById('saveStatus');
     statusEl.className = '';
     statusEl.textContent = 'Kaydediliyor...';
+    const snapshot = collectMenuData();
     const fd = new FormData();
     fd.append('action', 'save');
     fd.append('file', 'menu');
-    fd.append('data', JSON.stringify(collectMenuData()));
+    fd.append('data', JSON.stringify(snapshot));
     try {
         const res  = await fetch('admin.php', { method: 'POST', body: fd });
         const data = await res.json();
         if (data.ok) {
+            menuData = snapshot;
             statusEl.className = 'ok';
             statusEl.textContent = '✓ Kaydedildi!';
             setTimeout(() => statusEl.textContent = '', 3000);
@@ -509,6 +516,9 @@ async function saveMenu() {
     } catch (e) {
         statusEl.className = 'err';
         statusEl.textContent = '✗ Bağlantı hatası!';
+    } finally {
+        btn.disabled = false;
+        _menuSaving = false;
     }
 }
 
@@ -521,7 +531,12 @@ function renderAyarlar() {
     document.getElementById('set-email').value   = ayarlarData.email     || '';
 }
 
+let _ayarlarSaving = false;
 async function saveAyarlar() {
+    if (_ayarlarSaving) return;
+    _ayarlarSaving = true;
+    const btn = document.querySelector('.btn-save-settings');
+    btn.disabled = true;
     const statusEl = document.getElementById('settingsStatus');
     statusEl.className = '';
     statusEl.textContent = 'Kaydediliyor...';
@@ -540,6 +555,7 @@ async function saveAyarlar() {
         const res  = await fetch('admin.php', { method: 'POST', body: fd });
         const data = await res.json();
         if (data.ok) {
+            ayarlarData = newData;
             statusEl.className = 'ok';
             statusEl.textContent = '✓ Ayarlar kaydedildi!';
             setTimeout(() => statusEl.textContent = '', 3000);
@@ -550,6 +566,9 @@ async function saveAyarlar() {
     } catch (e) {
         statusEl.className = 'err';
         statusEl.textContent = '✗ Bağlantı hatası!';
+    } finally {
+        btn.disabled = false;
+        _ayarlarSaving = false;
     }
 }
 </script>
