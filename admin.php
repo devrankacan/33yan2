@@ -75,15 +75,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'save_adisyon') {
         $masa_id = $_POST['masa_id'] ?? '';
         $items   = json_decode($_POST['items'] ?? '[]', true) ?: [];
-        $acilis  = $_POST['acilis'] ?? date('d.m.Y H:i');
-        $path    = __DIR__ . '/adisyonlar.json';
+        $acilis   = $_POST['acilis']   ?? date('d.m.Y H:i');
+        $acilisTs = isset($_POST['acilisTs']) ? (int)$_POST['acilisTs'] : (time() * 1000);
+        $path     = __DIR__ . '/adisyonlar.json';
         $adisyonlar = file_exists($path) ? (json_decode(file_get_contents($path), true) ?: []) : [];
         if ($masa_id) {
             if (empty($items)) {
                 unset($adisyonlar[$masa_id]);
             } else {
                 if (empty($adisyonlar[$masa_id])) {
-                    $adisyonlar[$masa_id] = ['acilis' => $acilis, 'items' => $items];
+                    $adisyonlar[$masa_id] = ['acilis' => $acilis, 'acilisTs' => $acilisTs, 'items' => $items];
                 } else {
                     $adisyonlar[$masa_id]['items'] = $items;
                 }
@@ -289,7 +290,10 @@ $loggedIn = !empty($_SESSION['admin']);
         #masaCanvas.duzenleme .masa-del-btn { display: flex; }
 
         .masa-box.dolu { border-color: #e65100; background: #1a0e00; }
-        .masa-tutar { color: #ff8f00; font-size: 0.8rem; font-weight: bold; margin-top: 3px; }
+        .masa-tutar { color: #ff8f00; font-size: 0.8rem; font-weight: bold; margin-top: 2px; }
+        .masa-durum { font-size: 0.68rem; margin-top: 3px; }
+        .masa-acik  { color: #ff8f00; }
+        .masa-kapali{ color: #3a5c3a; }
 
         /* ===== ADİSYON MODAL ===== */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; align-items: center; justify-content: center; padding: 12px; }
@@ -823,7 +827,8 @@ function renderMasalar() {
         box.style.top  = (masa.y || 20) + 'px';
         box.dataset.id = masa.id;
 
-        const dolu = adisyonlar[masa.id] && adisyonlar[masa.id].items && adisyonlar[masa.id].items.length > 0;
+        const adisyon = adisyonlar[masa.id];
+        const dolu = adisyon && adisyon.items && adisyon.items.length > 0;
         if (dolu) box.classList.add('dolu');
 
         const adEl = document.createElement('div');
@@ -832,16 +837,20 @@ function renderMasalar() {
         box.appendChild(adEl);
 
         if (dolu) {
-            const toplam = adisyonlar[masa.id].items.reduce((s, i) => s + i.fiyat * i.adet, 0);
+            const toplam = adisyon.items.reduce((s, i) => s + i.fiyat * i.adet, 0);
             const tutarEl = document.createElement('div');
             tutarEl.className = 'masa-tutar';
             tutarEl.textContent = toplam.toFixed(0) + ' ₺';
             box.appendChild(tutarEl);
+            const durumEl = document.createElement('div');
+            durumEl.className = 'masa-durum masa-acik';
+            durumEl.textContent = 'Açık · ' + dakikaHesapla(adisyon.acilisTs);
+            box.appendChild(durumEl);
         } else {
-            const bosEl = document.createElement('div');
-            bosEl.className = 'masa-bos';
-            bosEl.textContent = 'Boş';
-            box.appendChild(bosEl);
+            const durumEl = document.createElement('div');
+            durumEl.className = 'masa-durum masa-kapali';
+            durumEl.textContent = 'Kapalı';
+            box.appendChild(durumEl);
         }
 
         const delBtn = document.createElement('button');
@@ -949,6 +958,10 @@ function yeniMasaEkle() {
     renderMasalar();
 }
 
+setInterval(() => {
+    if (document.getElementById('tab-kasa').classList.contains('active')) renderMasalar();
+}, 60000);
+
 async function saveMasalar() {
     const fd = new FormData();
     fd.append('action', 'save_masalar');
@@ -1028,8 +1041,7 @@ function renderMenuPanel() {
 function addToAdisyon(item) {
     if (!aktifMasaId) return;
     if (!adisyonlar[aktifMasaId]) {
-        adisyonlar[aktifMasaId] = { acilis: new Date().toLocaleString('tr-TR'), items: [] };
-        document.getElementById('adisyonAcilis').textContent = 'Açılış: ' + adisyonlar[aktifMasaId].acilis;
+        adisyonlar[aktifMasaId] = { acilis: new Date().toLocaleString('tr-TR'), acilisTs: Date.now(), items: [] };
     }
     const var_ = adisyonlar[aktifMasaId].items.find(i => i.ad === item.ad && i.fiyat === item.fiyat);
     if (var_) { var_.adet++; } else { adisyonlar[aktifMasaId].items.push({ ad: item.ad, fiyat: item.fiyat, adet: 1 }); }
@@ -1076,6 +1088,16 @@ function renderSepet() {
     const fmt = toplam.toFixed(2).replace('.', ',') + ' ₺';
     toplamEl.textContent = fmt;
     hdrEl.textContent    = fmt;
+}
+
+function dakikaHesapla(acilisTs) {
+    if (!acilisTs) return '';
+    const dk = Math.floor((Date.now() - acilisTs) / 60000);
+    if (dk < 1)  return 'az önce';
+    if (dk < 60) return dk + ' dk';
+    const sa = Math.floor(dk / 60);
+    const kalan = dk % 60;
+    return sa + ' sa' + (kalan > 0 ? ' ' + kalan + ' dk' : '');
 }
 
 function masayiAktarAc() {
@@ -1155,7 +1177,10 @@ async function autoSaveAdisyon() {
     fd.append('action', 'save_adisyon');
     fd.append('masa_id', aktifMasaId);
     fd.append('items', JSON.stringify(adisyonlar[aktifMasaId]?.items || []));
-    if (adisyonlar[aktifMasaId]) fd.append('acilis', adisyonlar[aktifMasaId].acilis);
+    if (adisyonlar[aktifMasaId]) {
+        fd.append('acilis',   adisyonlar[aktifMasaId].acilis);
+        fd.append('acilisTs', adisyonlar[aktifMasaId].acilisTs || Date.now());
+    }
     try { await fetch('admin.php', { method: 'POST', body: fd }); } catch (e) {}
 }
 
