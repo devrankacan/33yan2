@@ -97,6 +97,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'upload_logo') {
+        if (isset($_FILES['logo']) && $_FILES['logo']['error'] === 0) {
+            $mime    = mime_content_type($_FILES['logo']['tmp_name']);
+            $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (in_array($mime, $allowed)) {
+                $dest = __DIR__ . '/logo.jpg';
+                if (move_uploaded_file($_FILES['logo']['tmp_name'], $dest)) {
+                    echo json_encode(['ok' => true]);
+                } else {
+                    echo json_encode(['ok' => false, 'msg' => 'Dosya kaydedilemedi! Klasör iznini kontrol edin.']);
+                }
+            } else {
+                echo json_encode(['ok' => false, 'msg' => 'Sadece resim dosyası yüklenebilir.']);
+            }
+        } else {
+            echo json_encode(['ok' => false, 'msg' => 'Dosya seçilmedi veya çok büyük.']);
+        }
+        exit;
+    }
+
     if ($action === 'close_adisyon') {
         $masa_id = $_POST['masa_id'] ?? '';
         $path = __DIR__ . '/adisyonlar.json';
@@ -215,6 +235,16 @@ $loggedIn = !empty($_SESSION['admin']);
         .setting-group input:focus { border-color: #D4AF37; }
         .btn-save-settings { background: #D4AF37; color: #000; border: none; padding: 12px 28px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.95rem; margin-top: 20px; }
         .btn-save-settings:hover { background: #b8971e; }
+        .logo-upload-wrap { display: flex; flex-direction: column; gap: 8px; }
+        .logo-preview { width: 100px; height: 100px; object-fit: contain; border-radius: 8px; border: 1px solid #333; background: #0a0a0a; }
+        .logo-preview.gizli { display: none; }
+        .logo-file-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .btn-dosya-sec { background: #2a2a2a; color: #ccc; border: 1px solid #444; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-family: inherit; }
+        .btn-dosya-sec:hover { background: #333; }
+        .logo-dosya-adi { color: #555; font-size: 0.8rem; }
+        .btn-logo-yukle { background: #D4AF37; color: #000; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem; font-family: inherit; display: none; }
+        .btn-logo-yukle:hover { background: #b8971e; }
+        #logoStatus { font-size: 0.85rem; min-height: 18px; }
         #settingsStatus { margin-top: 12px; font-weight: bold; font-size: 0.9rem; min-height: 20px; }
         #settingsStatus.ok { color: #4caf50; }
         #settingsStatus.err { color: #f55; }
@@ -443,6 +473,19 @@ $loggedIn = !empty($_SESSION['admin']);
                 <div class="setting-group">
                     <label><i class="fas fa-envelope"></i> E-posta (Form bildirimleri)</label>
                     <input type="email" id="set-email" placeholder="ornek@email.com">
+                </div>
+            </div>
+            <div class="setting-group" style="max-width:320px; margin-top:8px;">
+                <label><i class="fas fa-image"></i> Mekan Logosu</label>
+                <div class="logo-upload-wrap">
+                    <img id="logoPreview" class="logo-preview" src="logo.jpg?v=1" alt="Logo" onerror="this.classList.add('gizli')">
+                    <input type="file" id="logoFileInp" accept="image/*" style="display:none" onchange="logoSecildi(this)">
+                    <div class="logo-file-row">
+                        <button class="btn-dosya-sec" onclick="document.getElementById('logoFileInp').click()"><i class="fas fa-folder-open"></i> Dosya Seç</button>
+                        <span class="logo-dosya-adi" id="logoDosyaAdi">Seçilmedi</span>
+                    </div>
+                    <button class="btn-logo-yukle" id="btnLogoYukle" onclick="logoYukle()"><i class="fas fa-upload"></i> Yükle</button>
+                    <div id="logoStatus"></div>
                 </div>
             </div>
             <button class="btn-save-settings" onclick="saveAyarlar()"><i class="fas fa-save"></i> Ayarları Kaydet</button>
@@ -1230,6 +1273,48 @@ async function hesabiKapat(odemeYontemi) {
     fd.append('masa_id', aktifMasaId);
     try { await fetch('admin.php', { method: 'POST', body: fd }); } catch (e) {}
     closeAdisyonModal();
+}
+
+function logoSecildi(inp) {
+    if (!inp.files[0]) return;
+    document.getElementById('logoDosyaAdi').textContent = inp.files[0].name;
+    document.getElementById('btnLogoYukle').style.display = 'inline-block';
+    const reader = new FileReader();
+    reader.onload = e => {
+        const img = document.getElementById('logoPreview');
+        img.src = e.target.result;
+        img.classList.remove('gizli');
+    };
+    reader.readAsDataURL(inp.files[0]);
+}
+
+async function logoYukle() {
+    const inp = document.getElementById('logoFileInp');
+    if (!inp.files[0]) return;
+    const statusEl = document.getElementById('logoStatus');
+    statusEl.style.color = '#888';
+    statusEl.textContent = 'Yükleniyor...';
+    const fd = new FormData();
+    fd.append('action', 'upload_logo');
+    fd.append('logo', inp.files[0]);
+    try {
+        const res  = await fetch('admin.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) {
+            statusEl.style.color = '#4caf50';
+            statusEl.textContent = '✓ Logo güncellendi!';
+            document.getElementById('logoPreview').src = 'logo.jpg?v=' + Date.now();
+            document.getElementById('btnLogoYukle').style.display = 'none';
+            document.getElementById('logoDosyaAdi').textContent = 'Seçilmedi';
+            inp.value = '';
+        } else {
+            statusEl.style.color = '#f55';
+            statusEl.textContent = '✗ ' + data.msg;
+        }
+    } catch (e) {
+        statusEl.style.color = '#f55';
+        statusEl.textContent = '✗ Bağlantı hatası';
+    }
 }
 
 async function saveAyarlar() {
