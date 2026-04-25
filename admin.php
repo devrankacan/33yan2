@@ -227,73 +227,87 @@ $loggedIn = !empty($_SESSION['admin']);
         .inp-col-header span:nth-child(4) { width: 34px; flex-shrink: 0; }
 
         /* ===== KASA / MASA ===== */
-        .kasa-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
-        .kasa-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        #kasaStatus { font-size: 0.9rem; font-weight: bold; }
+        #tab-kasa { display: none; flex-direction: column; height: calc(100vh - 110px); padding: 0 !important; }
+        #tab-kasa.active { display: flex; }
+
+        .kasa-top-bar { padding: 10px 16px; border-bottom: 1px solid #222; flex-shrink: 0; display: flex; align-items: center; gap: 10px; }
+        .btn-duzenle { background: #1c1c1c; color: #D4AF37; border: 1px solid #333; padding: 7px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-family: inherit; transition: 0.2s; }
+        .btn-duzenle:hover, .btn-duzenle.active { background: #D4AF37; color: #000; border-color: #D4AF37; }
+        #kasaStatus { font-size: 0.82rem; font-weight: bold; }
         #kasaStatus.ok { color: #4caf50; }
         #kasaStatus.err { color: #f55; }
-        .btn-kasa { background: #1c1c1c; color: #D4AF37; border: 1px solid #444; padding: 9px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; white-space: nowrap; }
-        .btn-kasa:hover { border-color: #D4AF37; }
-        .btn-kasa.active { background: #D4AF37; color: #000; border-color: #D4AF37; }
-        .btn-kasa-green { background: #1b5e20; color: #fff; border-color: #2e7d32; }
-        .btn-kasa-green:hover { background: #2e7d32; border-color: #2e7d32; }
 
         #masaCanvas {
             position: relative;
-            width: 100%;
-            min-height: 520px;
-            background: #0d0d0d;
-            border: 1px solid #2a2a2a;
-            border-radius: 10px;
+            flex: 1;
+            background: #0a0a0a;
             overflow: hidden;
         }
         #masaCanvas.duzenleme {
             background-image:
-                linear-gradient(#1a1a1a 1px, transparent 1px),
-                linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
+                linear-gradient(#141414 1px, transparent 1px),
+                linear-gradient(90deg, #141414 1px, transparent 1px);
             background-size: 40px 40px;
         }
-        #masaCanvas .bos-mesaj { color: #333; padding: 80px; text-align: center; font-size: 0.95rem; pointer-events: none; }
+        #masaCanvas .bos-mesaj { color: #2a2a2a; padding: 80px; text-align: center; font-size: 0.95rem; pointer-events: none; }
 
         .masa-box {
             position: absolute;
-            width: 88px;
-            height: 88px;
-            background: #1c1c1c;
+            width: 115px;
+            background: #0d1a0d;
             border: 2px solid #2e7d32;
             border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            padding: 12px 8px 8px;
+            gap: 4px;
             cursor: pointer;
             user-select: none;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: box-shadow 0.2s;
         }
-        .masa-box:hover { box-shadow: 0 0 14px rgba(212,175,55,0.25); border-color: #D4AF37; }
-        .masa-box.dragging { opacity: 0.85; z-index: 99; box-shadow: 0 6px 24px rgba(0,0,0,0.6); }
+        .masa-box:hover { box-shadow: 0 0 16px rgba(46,125,50,0.4); }
+        .masa-box.dolu { background: #1a0808; border-color: #c62828; }
+        .masa-box.dolu:hover { box-shadow: 0 0 16px rgba(198,40,40,0.4); }
+        .masa-box.dragging { opacity: 0.8; z-index: 99; }
         .masa-box.duzenleme-mod { cursor: grab; }
         .masa-box.duzenleme-mod:active { cursor: grabbing; }
-        .masa-ad { color: #D4AF37; font-weight: bold; font-size: 0.85rem; text-align: center; padding: 0 6px; line-height: 1.2; }
-        .masa-bos { color: #3a3a3a; font-size: 0.7rem; margin-top: 4px; }
+
+        .masa-ikon { font-size: 1.7rem; color: #2e7d32; }
+        .masa-box.dolu .masa-ikon { color: #c62828; }
+        .masa-ad { color: #D4AF37; font-weight: bold; font-size: 0.88rem; text-align: center; }
+        .masa-tutar { color: #D4AF37; font-size: 0.82rem; font-weight: bold; }
+        .masa-durum { font-size: 0.68rem; }
+        .masa-acik  { color: #e57373; }
+        .masa-kapali{ color: #388e3c; }
+        .masa-action-btn {
+            width: 100%; margin-top: 4px;
+            padding: 5px 0;
+            border: none; border-radius: 5px;
+            font-size: 0.75rem; font-weight: bold; font-family: inherit;
+            cursor: pointer;
+            background: #2e7d32; color: #fff;
+        }
+        .masa-box.dolu .masa-action-btn { background: #c62828; }
         .masa-del-btn {
             display: none;
             position: absolute;
-            top: -9px; right: -9px;
-            width: 22px; height: 22px;
-            background: #c62828; color: #fff;
+            top: -8px; right: -8px;
+            width: 20px; height: 20px;
+            background: #b71c1c; color: #fff;
             border: none; border-radius: 50%;
-            cursor: pointer; font-size: 0.75rem;
+            cursor: pointer; font-size: 0.7rem;
             align-items: center; justify-content: center;
-            line-height: 1; z-index: 2;
+            z-index: 2;
         }
         #masaCanvas.duzenleme .masa-del-btn { display: flex; }
 
-        .masa-box.dolu { border-color: #e65100; background: #1a0e00; }
-        .masa-tutar { color: #ff8f00; font-size: 0.8rem; font-weight: bold; margin-top: 2px; }
-        .masa-durum { font-size: 0.68rem; margin-top: 3px; }
-        .masa-acik  { color: #ff8f00; }
-        .masa-kapali{ color: #3a5c3a; }
+        .kasa-bottom-bar { display: flex; align-items: center; gap: 8px; padding: 10px 16px; background: #111; border-top: 1px solid #222; flex-shrink: 0; flex-wrap: wrap; }
+        .btn-bottom { border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: bold; font-family: inherit; }
+        .btn-bottom-gold  { background: #D4AF37; color: #000; }
+        .btn-bottom-gray  { background: #2a2a2a; color: #aaa; }
+        .btn-bottom-gray:hover { background: #333; }
+        .masa-sayisi-text { color: #444; font-size: 0.8rem; margin-left: 4px; }
 
         /* ===== ADİSYON MODAL ===== */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; align-items: center; justify-content: center; padding: 12px; }
@@ -482,23 +496,20 @@ $loggedIn = !empty($_SESSION['admin']);
 
         <!-- Kasa Tab -->
         <div class="tab-content" id="tab-kasa">
-            <div class="kasa-toolbar">
-                <div class="page-title"><i class="fas fa-th"></i> Masalar</div>
-                <div class="kasa-btns">
-                    <span id="kasaStatus"></span>
-                    <button class="btn-kasa" id="btnDuzenleme" onclick="toggleDuzenleme()">
-                        <i class="fas fa-arrows-alt"></i> Masa Düzenle
-                    </button>
-                    <button class="btn-kasa btn-kasa-green" onclick="yeniMasaEkle()">
-                        <i class="fas fa-plus"></i> Masa Ekle
-                    </button>
-                    <button class="btn-save" onclick="saveMasalar()">
-                        <i class="fas fa-save"></i> Kaydet
-                    </button>
-                </div>
+            <div class="kasa-top-bar">
+                <button class="btn-duzenle" id="btnDuzenleme" onclick="toggleDuzenleme()">
+                    <i class="fas fa-arrows-alt"></i> Krokiyi / İsimleri Düzenle (Sürükle-Bırak)
+                </button>
+                <span id="kasaStatus"></span>
             </div>
             <div id="masaCanvas">
                 <div class="bos-mesaj">Yükleniyor...</div>
+            </div>
+            <div class="kasa-bottom-bar">
+                <button class="btn-bottom btn-bottom-gold" onclick="yeniMasaEkle()"><i class="fas fa-plus"></i> Yeni Masa Ekle</button>
+                <button class="btn-bottom btn-bottom-gray" onclick="sonMasayiSil()">— Son Masayı Sil</button>
+                <button class="btn-bottom btn-bottom-gray" onclick="saveMasalar()"><i class="fas fa-save"></i> Kroikiyi Kaydet</button>
+                <span class="masa-sayisi-text" id="masaSayisiText"></span>
             </div>
         </div>
 
@@ -815,48 +826,60 @@ function renderMasalar() {
     canvas.innerHTML = '';
     canvas.classList.toggle('duzenleme', duzenlemeMode);
 
+    document.getElementById('masaSayisiText').textContent = '(Şu an toplam ' + masalar.length + ' masa var)';
+
     if (masalar.length === 0) {
-        canvas.innerHTML = '<div class="bos-mesaj">Henüz masa eklenmedi.<br>Masa Düzenle modunda "Masa Ekle" butonunu kullanın.</div>';
+        canvas.innerHTML = '<div class="bos-mesaj">Henüz masa eklenmedi.<br>"Yeni Masa Ekle" butonunu kullanın.</div>';
         return;
     }
 
     masalar.forEach(masa => {
+        const adisyon = adisyonlar[masa.id];
+        const dolu    = adisyon && adisyon.items && adisyon.items.length > 0;
+
         const box = document.createElement('div');
-        box.className = 'masa-box' + (duzenlemeMode ? ' duzenleme-mod' : '');
+        box.className = 'masa-box' + (dolu ? ' dolu' : '') + (duzenlemeMode ? ' duzenleme-mod' : '');
         box.style.left = (masa.x || 20) + 'px';
         box.style.top  = (masa.y || 20) + 'px';
         box.dataset.id = masa.id;
 
-        const adisyon = adisyonlar[masa.id];
-        const dolu = adisyon && adisyon.items && adisyon.items.length > 0;
-        if (dolu) box.classList.add('dolu');
+        // İkon
+        const ikonEl = document.createElement('div');
+        ikonEl.className = 'masa-ikon';
+        ikonEl.innerHTML = '<i class="fas fa-users"></i>';
+        box.appendChild(ikonEl);
 
+        // Ad
         const adEl = document.createElement('div');
         adEl.className = 'masa-ad';
         adEl.textContent = masa.ad;
         box.appendChild(adEl);
 
-        if (dolu) {
-            const toplam = adisyon.items.reduce((s, i) => s + i.fiyat * i.adet, 0);
-            const tutarEl = document.createElement('div');
-            tutarEl.className = 'masa-tutar';
-            tutarEl.textContent = toplam.toFixed(0) + ' ₺';
-            box.appendChild(tutarEl);
-            const durumEl = document.createElement('div');
-            durumEl.className = 'masa-durum masa-acik';
-            durumEl.textContent = 'Açık · ' + dakikaHesapla(adisyon.acilisTs);
-            box.appendChild(durumEl);
-        } else {
-            const durumEl = document.createElement('div');
-            durumEl.className = 'masa-durum masa-kapali';
-            durumEl.textContent = 'Kapalı';
-            box.appendChild(durumEl);
-        }
+        // Tutar
+        const tutarEl = document.createElement('div');
+        tutarEl.className = 'masa-tutar';
+        tutarEl.textContent = dolu
+            ? adisyon.items.reduce((s, i) => s + i.fiyat * i.adet, 0).toFixed(2).replace('.', ',') + ' ₺'
+            : '0 ₺';
+        box.appendChild(tutarEl);
 
+        // Durum
+        const durumEl = document.createElement('div');
+        durumEl.className = 'masa-durum ' + (dolu ? 'masa-acik' : 'masa-kapali');
+        durumEl.textContent = dolu ? 'Açık · ' + dakikaHesapla(adisyon.acilisTs) : 'Kapalı';
+        box.appendChild(durumEl);
+
+        // Aksiyon butonu
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'masa-action-btn';
+        actionBtn.textContent = dolu ? 'Adisyonu Aç' : 'Masayı Aç';
+        actionBtn.addEventListener('click', e => { e.stopPropagation(); if (!dragMoved) openAdisyon(masa.id); });
+        box.appendChild(actionBtn);
+
+        // Sil butonu (sadece düzenleme modunda görünür)
         const delBtn = document.createElement('button');
         delBtn.className = 'masa-del-btn';
         delBtn.innerHTML = '&times;';
-        delBtn.title = 'Sil';
         delBtn.addEventListener('click', e => {
             e.stopPropagation();
             if (confirm('"' + masa.ad + '" silinsin mi?')) {
@@ -867,7 +890,7 @@ function renderMasalar() {
         box.appendChild(delBtn);
 
         box.addEventListener('click', e => {
-            if (e.target === delBtn || dragMoved) return;
+            if (e.target === delBtn || e.target === actionBtn || dragMoved) return;
             openAdisyon(masa.id);
         });
 
@@ -943,6 +966,15 @@ function toggleDuzenleme() {
         ? '<i class="fas fa-check"></i> Düzenleme Açık'
         : '<i class="fas fa-arrows-alt"></i> Masa Düzenle';
     renderMasalar();
+}
+
+function sonMasayiSil() {
+    if (!masalar.length) return;
+    const son = masalar[masalar.length - 1];
+    if (confirm('"' + son.ad + '" silinsin mi?')) {
+        masalar.pop();
+        renderMasalar();
+    }
 }
 
 function yeniMasaEkle() {
