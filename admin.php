@@ -437,8 +437,13 @@ $loggedIn = !empty($_SESSION['admin']);
         <div class="adisyon-header">
             <div class="adisyon-header-title"><i class="fas fa-receipt"></i> <span id="adisyonMasaAdi"></span> Adisyonu</div>
             <div class="adisyon-header-toplam" id="adisyonHeaderToplam">0,00 ₺</div>
-            <button class="btn-masa-aktar"><i class="fas fa-exchange-alt"></i> Masayı Aktar</button>
+            <button class="btn-masa-aktar" onclick="masayiAktarAc()"><i class="fas fa-exchange-alt"></i> Masayı Aktar</button>
             <button class="btn-modal-close" onclick="closeAdisyonModal()">×</button>
+        </div>
+        <!-- Masa aktar paneli -->
+        <div id="aktarPanel" style="display:none; background:#1e1e1e; border-bottom:1px solid #333; padding:10px 16px;">
+            <div style="color:#D4AF37; font-size:0.82rem; margin-bottom:8px;">Hangi masaya aktarılsın?</div>
+            <div id="aktarMasaListesi" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
         </div>
         <div class="adisyon-body">
             <!-- Sol: Sipariş listesi -->
@@ -1071,6 +1076,52 @@ function renderSepet() {
     const fmt = toplam.toFixed(2).replace('.', ',') + ' ₺';
     toplamEl.textContent = fmt;
     hdrEl.textContent    = fmt;
+}
+
+function masayiAktarAc() {
+    const panel   = document.getElementById('aktarPanel');
+    const listeEl = document.getElementById('aktarMasaListesi');
+    if (panel.style.display !== 'none') { panel.style.display = 'none'; return; }
+    listeEl.innerHTML = '';
+    const digerMasalar = masalar.filter(m => m.id !== aktifMasaId);
+    if (!digerMasalar.length) { alert('Başka masa yok.'); return; }
+    digerMasalar.forEach(masa => {
+        const btn = document.createElement('button');
+        const dolu = adisyonlar[masa.id]?.items?.length > 0;
+        btn.style.cssText = 'background:' + (dolu ? '#3a1a00' : '#1c1c1c') + ';color:' + (dolu ? '#ff8f00' : '#D4AF37') + ';border:1px solid #444;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-family:inherit;';
+        btn.textContent = masa.ad + (dolu ? ' (dolu)' : '');
+        btn.onclick = () => masayiAktarYap(masa.id);
+        listeEl.appendChild(btn);
+    });
+    panel.style.display = 'block';
+}
+
+async function masayiAktarYap(hedefId) {
+    const hedef = masalar.find(m => m.id === hedefId);
+    if (adisyonlar[hedefId]?.items?.length) {
+        if (!confirm('"' + hedef.ad + '" masasında zaten adisyon var. Üzerine eklensin mi?')) return;
+    }
+    const kaynakItems = adisyonlar[aktifMasaId]?.items || [];
+    if (!kaynakItems.length) { alert('Aktarılacak ürün yok.'); return; }
+
+    if (!adisyonlar[hedefId]) {
+        adisyonlar[hedefId] = { acilis: new Date().toLocaleString('tr-TR'), items: [] };
+    }
+    kaynakItems.forEach(item => {
+        const var_ = adisyonlar[hedefId].items.find(i => i.ad === item.ad && i.fiyat === item.fiyat);
+        if (var_) { var_.adet += item.adet; } else { adisyonlar[hedefId].items.push({ ...item }); }
+    });
+    delete adisyonlar[aktifMasaId];
+
+    // Kaydet
+    const fd1 = new FormData(); fd1.append('action','close_adisyon'); fd1.append('masa_id', aktifMasaId);
+    const fd2 = new FormData(); fd2.append('action','save_adisyon'); fd2.append('masa_id', hedefId);
+    fd2.append('items', JSON.stringify(adisyonlar[hedefId].items));
+    fd2.append('acilis', adisyonlar[hedefId].acilis);
+    try { await Promise.all([fetch('admin.php',{method:'POST',body:fd1}), fetch('admin.php',{method:'POST',body:fd2})]); } catch(e) {}
+
+    document.getElementById('aktarPanel').style.display = 'none';
+    closeAdisyonModal();
 }
 
 function masayaKaydet() {
