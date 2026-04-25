@@ -1,39 +1,52 @@
 <?php
-session_start();
-define('ADMIN_PASS', 'admin33'); // Şifreyi değiştirin!
+define('ADMIN_PASS', 'admin33');
+define('TOK_FILE',   __DIR__ . '/.admtok');
 
-// ===== AJAX HANDLER =====
+function tok_make() {
+    $tok = bin2hex(random_bytes(32));
+    file_put_contents(TOK_FILE, json_encode(['h' => hash('sha256', $tok), 'exp' => time() + 86400]));
+    return $tok;
+}
+function tok_ok($tok) {
+    if (!$tok || !file_exists(TOK_FILE)) return false;
+    $d = json_decode(file_get_contents(TOK_FILE), true);
+    return $d && !empty($d['h']) && $d['exp'] > time() && hash_equals($d['h'], hash('sha256', $tok));
+}
+function tok_del() { if (file_exists(TOK_FILE)) unlink(TOK_FILE); }
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Content-Type: application/json; charset=utf-8');
     $action = $_POST['action'] ?? '';
 
     if ($action === 'login') {
         if (($_POST['sifre'] ?? '') === ADMIN_PASS) {
-            $_SESSION['admin'] = true;
-            echo json_encode(['ok' => true]);
+            echo json_encode(['ok' => true, 'token' => tok_make()]);
         } else {
             echo json_encode(['ok' => false, 'msg' => 'Şifre hatalı!']);
         }
         exit;
     }
 
-    if (empty($_SESSION['admin'])) {
+    if ($action === 'verify') {
+        echo json_encode(['ok' => tok_ok($_POST['token'] ?? '')]);
+        exit;
+    }
+
+    if (!tok_ok($_POST['token'] ?? '')) {
         http_response_code(403);
         echo json_encode(['ok' => false, 'msg' => 'Yetkisiz erişim!']);
         exit;
     }
 
     if ($action === 'save') {
-        $which = ($_POST['file'] ?? '') === 'ayarlar' ? 'ayarlar.json' : 'menu.json';
-        $path  = __DIR__ . '/' . $which;
+        $which   = ($_POST['file'] ?? '') === 'ayarlar' ? 'ayarlar.json' : 'menu.json';
+        $path    = __DIR__ . '/' . $which;
         $decoded = json_decode($_POST['data'] ?? '', true);
         if ($decoded !== null) {
             $written = file_put_contents($path, json_encode($decoded, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            if ($written !== false) {
-                echo json_encode(['ok' => true]);
-            } else {
-                echo json_encode(['ok' => false, 'msg' => $which . ' yazılamadı! Sunucu dosya iznini kontrol edin.']);
-            }
+            echo json_encode($written !== false
+                ? ['ok' => true]
+                : ['ok' => false, 'msg' => $which . ' yazılamadı! Sunucu dosya iznini kontrol edin.']);
         } else {
             echo json_encode(['ok' => false, 'msg' => 'Geçersiz JSON verisi!']);
         }
@@ -41,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'logout') {
-        session_destroy();
+        tok_del();
         echo json_encode(['ok' => true]);
         exit;
     }
@@ -49,8 +62,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo json_encode(['ok' => false, 'msg' => 'Bilinmeyen işlem']);
     exit;
 }
-
-$loggedIn = !empty($_SESSION['admin']);
 ?>
 <!DOCTYPE html>
 <html lang="tr">
@@ -176,7 +187,7 @@ $loggedIn = !empty($_SESSION['admin']);
 <body>
 
 <!-- ===== LOGIN PAGE ===== -->
-<div class="login-page" id="loginPage" <?= $loggedIn ? 'style="display:none"' : '' ?>>
+<div class="login-page" id="loginPage">
     <div class="login-box">
         <h2><i class="fas fa-lock"></i> Admin Girişi</h2>
         <p class="sub">33 YAN 2 Yönetim Paneli</p>
@@ -187,7 +198,7 @@ $loggedIn = !empty($_SESSION['admin']);
 </div>
 
 <!-- ===== ADMIN PAGE ===== -->
-<div class="admin-page <?= $loggedIn ? 'show' : '' ?>" id="adminPage">
+<div class="admin-page" id="adminPage">
 
     <div class="adm-header">
         <div class="logo">33 YAN 2 <span>| Admin Panel</span></div>
@@ -247,11 +258,33 @@ $loggedIn = !empty($_SESSION['admin']);
 </div>
 
 <script>
-const LOGGED_IN = <?= $loggedIn ? 'true' : 'false' ?>;
+let adminToken = localStorage.getItem('adminToken') || '';
 let menuData = {};
 let ayarlarData = {};
 
-if (LOGGED_IN) loadAll();
+// On page load, verify stored token and auto-login if valid
+(async () => {
+    if (!adminToken) return;
+    try {
+        const fd = new FormData();
+        fd.append('action', 'verify');
+        fd.append('token', adminToken);
+        const res  = await fetch('admin.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.ok) {
+            showAdmin();
+        } else {
+            localStorage.removeItem('adminToken');
+            adminToken = '';
+        }
+    } catch (e) { /* network error, stay on login */ }
+})();
+
+function showAdmin() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('adminPage').classList.add('show');
+    loadAll();
+}
 
 // ===== DATA LOAD =====
 async function loadAll() {
@@ -279,12 +312,12 @@ async function doLogin() {
         const fd = new FormData();
         fd.append('action', 'login');
         fd.append('sifre', sifre);
-        const res = await fetch('admin.php', { method: 'POST', body: fd });
+        const res  = await fetch('admin.php', { method: 'POST', body: fd });
         const data = await res.json();
         if (data.ok) {
-            document.getElementById('loginPage').style.display = 'none';
-            document.getElementById('adminPage').classList.add('show');
-            loadAll();
+            adminToken = data.token;
+            localStorage.setItem('adminToken', adminToken);
+            showAdmin();
         } else {
             errEl.textContent = data.msg;
         }
@@ -296,7 +329,10 @@ async function doLogin() {
 async function doLogout() {
     const fd = new FormData();
     fd.append('action', 'logout');
+    fd.append('token', adminToken);
     await fetch('admin.php', { method: 'POST', body: fd });
+    localStorage.removeItem('adminToken');
+    adminToken = '';
     location.reload();
 }
 
@@ -321,7 +357,6 @@ function buildCatBlock(catName, catData) {
     const block = document.createElement('div');
     block.className = 'cat-block';
 
-    // Header
     const head = document.createElement('div');
     head.className = 'cat-head';
     const nameInp = document.createElement('input');
@@ -336,7 +371,6 @@ function buildCatBlock(catName, catData) {
     head.appendChild(nameInp);
     head.appendChild(delBtn);
 
-    // Tile settings
     const tileRow = document.createElement('div');
     tileRow.className = 'cat-tile-row';
     const colorOpts = [
@@ -346,7 +380,6 @@ function buildCatBlock(catName, catData) {
         `<label>Sembol:</label><input type="text" class="tile-num-inp" value="${catData.tileNum||''}" maxlength="3" placeholder="1">` +
         `<label>Renk:</label><select class="tile-color-sel">${colorOpts}</select>`;
 
-    // Body
     const body = document.createElement('div');
     body.className = 'cat-body';
 
@@ -356,7 +389,6 @@ function buildCatBlock(catName, catData) {
 
     subcats.forEach(([subName, items]) => body.appendChild(buildSubcatBlock(subName, items)));
 
-    // Add subcat
     const addSubDiv = document.createElement('div');
     addSubDiv.className = 'cat-add-subcat';
     const addSubBtn = document.createElement('button');
@@ -390,7 +422,6 @@ function buildSubcatBlock(subName, items) {
     head.appendChild(nameInp);
     head.appendChild(delBtn);
 
-    // Column headers
     const colHeader = document.createElement('div');
     colHeader.className = 'inp-col-header';
     colHeader.innerHTML = '<span>Ürün Adı</span><span>Fiyat (₺)</span><span>Açıklama</span><span></span>';
@@ -494,6 +525,7 @@ async function saveMenu() {
     const fd = new FormData();
     fd.append('action', 'save');
     fd.append('file', 'menu');
+    fd.append('token', adminToken);
     fd.append('data', JSON.stringify(collectMenuData()));
     try {
         const res  = await fetch('admin.php', { method: 'POST', body: fd });
@@ -535,6 +567,7 @@ async function saveAyarlar() {
     const fd = new FormData();
     fd.append('action', 'save');
     fd.append('file', 'ayarlar');
+    fd.append('token', adminToken);
     fd.append('data', JSON.stringify(newData));
     try {
         const res  = await fetch('admin.php', { method: 'POST', body: fd });
