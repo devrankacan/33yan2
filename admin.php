@@ -65,6 +65,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'get_adisyonlar') {
+        $path = __DIR__ . '/adisyonlar.json';
+        $data = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
+        echo json_encode(['ok' => true, 'data' => $data ?: (object)[]]);
+        exit;
+    }
+
+    if ($action === 'save_adisyon') {
+        $masa_id = $_POST['masa_id'] ?? '';
+        $items   = json_decode($_POST['items'] ?? '[]', true) ?: [];
+        $acilis  = $_POST['acilis'] ?? date('d.m.Y H:i');
+        $path    = __DIR__ . '/adisyonlar.json';
+        $adisyonlar = file_exists($path) ? (json_decode(file_get_contents($path), true) ?: []) : [];
+        if ($masa_id) {
+            if (empty($items)) {
+                unset($adisyonlar[$masa_id]);
+            } else {
+                if (empty($adisyonlar[$masa_id])) {
+                    $adisyonlar[$masa_id] = ['acilis' => $acilis, 'items' => $items];
+                } else {
+                    $adisyonlar[$masa_id]['items'] = $items;
+                }
+            }
+            file_put_contents($path, json_encode($adisyonlar, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            echo json_encode(['ok' => true]);
+        } else {
+            echo json_encode(['ok' => false, 'msg' => 'Masa ID gerekli']);
+        }
+        exit;
+    }
+
+    if ($action === 'close_adisyon') {
+        $masa_id = $_POST['masa_id'] ?? '';
+        $path = __DIR__ . '/adisyonlar.json';
+        $adisyonlar = file_exists($path) ? (json_decode(file_get_contents($path), true) ?: []) : [];
+        unset($adisyonlar[$masa_id]);
+        file_put_contents($path, json_encode($adisyonlar, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        echo json_encode(['ok' => true]);
+        exit;
+    }
+
     echo json_encode(['ok' => false, 'msg' => 'Bilinmeyen işlem']);
     exit;
 }
@@ -247,6 +288,57 @@ $loggedIn = !empty($_SESSION['admin']);
         }
         #masaCanvas.duzenleme .masa-del-btn { display: flex; }
 
+        .masa-box.dolu { border-color: #e65100; background: #1a0e00; }
+        .masa-tutar { color: #ff8f00; font-size: 0.8rem; font-weight: bold; margin-top: 3px; }
+
+        /* ===== ADİSYON MODAL ===== */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
+        .modal-overlay.show { display: flex; }
+        .adisyon-modal { background: #161616; border: 1px solid #D4AF37; border-radius: 12px; width: 100%; max-width: 860px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
+        .adisyon-header { background: #1a1a1a; border-bottom: 2px solid #D4AF37; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .adisyon-header h3 { color: #D4AF37; font-size: 1.05rem; }
+        .adisyon-acilis-time { color: #555; font-size: 0.78rem; margin-top: 2px; }
+        .btn-modal-close { background: #2a2a2a; color: #ccc; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
+        .btn-modal-close:hover { background: #444; }
+        .adisyon-body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+
+        .menu-panel { width: 55%; border-right: 1px solid #222; display: flex; flex-direction: column; overflow: hidden; }
+        .menu-search { padding: 10px 12px; border-bottom: 1px solid #1e1e1e; flex-shrink: 0; }
+        .menu-search input { width: 100%; background: #0a0a0a; border: 1px solid #2a2a2a; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 0.88rem; outline: none; font-family: inherit; }
+        .menu-search input:focus { border-color: #D4AF37; }
+        .menu-cats { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; border-bottom: 1px solid #1e1e1e; flex-shrink: 0; }
+        .menu-cats::-webkit-scrollbar { height: 3px; }
+        .menu-cats::-webkit-scrollbar-thumb { background: #333; }
+        .menu-cat-btn { background: #1c1c1c; color: #777; border: 1px solid #2a2a2a; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; transition: 0.15s; }
+        .menu-cat-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; font-weight: bold; }
+        .menu-items-list { flex: 1; overflow-y: auto; padding: 8px; }
+        .menu-items-list::-webkit-scrollbar { width: 4px; }
+        .menu-items-list::-webkit-scrollbar-thumb { background: #333; }
+        .menu-item-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #1c1c1c; border: 1px solid #222; color: #ddd; padding: 10px 14px; border-radius: 6px; margin-bottom: 5px; cursor: pointer; text-align: left; font-family: inherit; font-size: 0.88rem; transition: 0.15s; }
+        .menu-item-btn:hover { background: #242424; border-color: #D4AF37; color: #fff; }
+        .menu-item-btn .item-fiyat { color: #D4AF37; font-weight: bold; white-space: nowrap; margin-left: 10px; }
+
+        .sepet-panel { width: 45%; display: flex; flex-direction: column; }
+        .sepet-header { padding: 12px 16px; border-bottom: 1px solid #1e1e1e; color: #666; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; flex-shrink: 0; }
+        .sepet-items { flex: 1; overflow-y: auto; padding: 8px; }
+        .sepet-items::-webkit-scrollbar { width: 4px; }
+        .sepet-items::-webkit-scrollbar-thumb { background: #333; }
+        .sepet-bos { color: #333; text-align: center; padding: 40px 20px; font-size: 0.88rem; }
+        .sepet-row { display: flex; align-items: center; gap: 8px; background: #1c1c1c; border-radius: 6px; padding: 8px 10px; margin-bottom: 5px; }
+        .sepet-row-ad { flex: 1; color: #ddd; font-size: 0.85rem; min-width: 0; word-break: break-word; }
+        .sepet-adet { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+        .btn-adet { background: #2a2a2a; color: #fff; border: none; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; }
+        .btn-adet:hover { background: #3a3a3a; }
+        .sepet-adet-num { color: #D4AF37; font-weight: bold; min-width: 22px; text-align: center; font-size: 0.9rem; }
+        .sepet-row-fiyat { color: #D4AF37; font-weight: bold; font-size: 0.85rem; min-width: 50px; text-align: right; flex-shrink: 0; }
+        .sepet-footer { padding: 14px 16px; border-top: 2px solid #1e1e1e; flex-shrink: 0; }
+        .sepet-toplam-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .sepet-toplam-row span { color: #777; font-size: 0.88rem; }
+        .sepet-toplam-row strong { color: #D4AF37; font-size: 1.5rem; }
+        .btn-hesabi-kapat { width: 100%; padding: 13px; background: #b71c1c; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; }
+        .btn-hesabi-kapat:hover { background: #c62828; }
+        .btn-hesabi-kapat:disabled { background: #1e1e1e; color: #444; cursor: not-allowed; }
+
         @media (max-width: 600px) {
             .item-row { flex-wrap: wrap; }
             .inp-name, .inp-desc { flex: 1 1 100%; }
@@ -325,6 +417,41 @@ $loggedIn = !empty($_SESSION['admin']);
             <button class="btn-save-settings" onclick="saveAyarlar()"><i class="fas fa-save"></i> Ayarları Kaydet</button>
             <div id="settingsStatus"></div>
         </div>
+
+        <!-- ADİSYON MODAL -->
+<div class="modal-overlay" id="adisyonModal">
+    <div class="adisyon-modal">
+        <div class="adisyon-header">
+            <div>
+                <h3><i class="fas fa-receipt"></i> <span id="adisyonMasaAdi"></span></h3>
+                <div class="adisyon-acilis-time" id="adisyonAcilis"></div>
+            </div>
+            <button class="btn-modal-close" onclick="closeAdisyonModal()">×</button>
+        </div>
+        <div class="adisyon-body">
+            <div class="menu-panel">
+                <div class="menu-search">
+                    <input type="text" id="menuAramaInp" placeholder="Ürün ara..." oninput="menuArama=this.value; renderMenuPanel()">
+                </div>
+                <div class="menu-cats" id="menuCatBtns"></div>
+                <div class="menu-items-list" id="menuItemsList"></div>
+            </div>
+            <div class="sepet-panel">
+                <div class="sepet-header">Adisyon</div>
+                <div class="sepet-items" id="sepetItems"></div>
+                <div class="sepet-footer">
+                    <div class="sepet-toplam-row">
+                        <span>Toplam</span>
+                        <strong id="sepetToplam">0 ₺</strong>
+                    </div>
+                    <button class="btn-hesabi-kapat" id="btnHesabiKapat" onclick="hesabiKapat()" disabled>
+                        <i class="fas fa-check-circle"></i> Hesabı Kapat
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Kasa Tab -->
         <div class="tab-content" id="tab-kasa">
@@ -629,17 +756,26 @@ function renderAyarlar() {
 
 // ===== KASA / MASA =====
 let masalar = [];
+let adisyonlar = {};
 let duzenlemeMode = false;
 let dragState = null;
+let aktifMasaId = null;
+let aktifKategori = null;
+let menuArama = '';
 
 async function loadKasa() {
     const canvas = document.getElementById('masaCanvas');
     try {
-        const fd = new FormData();
-        fd.append('action', 'get_masalar');
-        const res = await fetch('admin.php', { method: 'POST', body: fd });
-        const data = await res.json();
-        masalar = Array.isArray(data.data) ? data.data : [];
+        const fd1 = new FormData(); fd1.append('action', 'get_masalar');
+        const fd2 = new FormData(); fd2.append('action', 'get_adisyonlar');
+        const [r1, r2] = await Promise.all([
+            fetch('admin.php', { method: 'POST', body: fd1 }),
+            fetch('admin.php', { method: 'POST', body: fd2 })
+        ]);
+        const d1 = await r1.json();
+        const d2 = await r2.json();
+        masalar    = Array.isArray(d1.data) ? d1.data : [];
+        adisyonlar = (d2.data && typeof d2.data === 'object') ? d2.data : {};
         renderMasalar();
     } catch (e) {
         canvas.innerHTML = '<div class="bos-mesaj" style="color:#f55">Yüklenemedi: ' + e.message + '</div>';
@@ -663,15 +799,26 @@ function renderMasalar() {
         box.style.top  = (masa.y || 20) + 'px';
         box.dataset.id = masa.id;
 
+        const dolu = adisyonlar[masa.id] && adisyonlar[masa.id].items && adisyonlar[masa.id].items.length > 0;
+        if (dolu) box.classList.add('dolu');
+
         const adEl = document.createElement('div');
         adEl.className = 'masa-ad';
         adEl.textContent = masa.ad;
         box.appendChild(adEl);
 
-        const bosEl = document.createElement('div');
-        bosEl.className = 'masa-bos';
-        bosEl.textContent = 'Boş';
-        box.appendChild(bosEl);
+        if (dolu) {
+            const toplam = adisyonlar[masa.id].items.reduce((s, i) => s + i.fiyat * i.adet, 0);
+            const tutarEl = document.createElement('div');
+            tutarEl.className = 'masa-tutar';
+            tutarEl.textContent = toplam.toFixed(0) + ' ₺';
+            box.appendChild(tutarEl);
+        } else {
+            const bosEl = document.createElement('div');
+            bosEl.className = 'masa-bos';
+            bosEl.textContent = 'Boş';
+            box.appendChild(bosEl);
+        }
 
         const delBtn = document.createElement('button');
         delBtn.className = 'masa-del-btn';
@@ -685,6 +832,11 @@ function renderMasalar() {
             }
         });
         box.appendChild(delBtn);
+
+        box.addEventListener('click', e => {
+            if (duzenlemeMode || e.target === delBtn) return;
+            openAdisyon(masa.id);
+        });
 
         box.addEventListener('mousedown', e => {
             if (!duzenlemeMode || e.target === delBtn) return;
@@ -786,6 +938,144 @@ async function saveMasalar() {
         el.className   = data.ok ? 'ok' : 'err';
         setTimeout(() => { el.textContent = ''; el.className = ''; }, 3000);
     } catch (e) {}
+}
+
+// ===== ADİSYON =====
+function openAdisyon(masaId) {
+    aktifMasaId   = masaId;
+    aktifKategori = null;
+    menuArama     = '';
+    const masa = masalar.find(m => m.id === masaId);
+    document.getElementById('adisyonMasaAdi').textContent = masa ? masa.ad : '';
+    const adisyon = adisyonlar[masaId];
+    document.getElementById('adisyonAcilis').textContent = adisyon ? 'Açılış: ' + adisyon.acilis : '';
+    document.getElementById('menuAramaInp').value = '';
+    renderMenuPanel();
+    renderSepet();
+    document.getElementById('adisyonModal').classList.add('show');
+}
+
+function closeAdisyonModal() {
+    document.getElementById('adisyonModal').classList.remove('show');
+    aktifMasaId = null;
+    renderMasalar();
+}
+
+function renderMenuPanel() {
+    const catsEl = document.getElementById('menuCatBtns');
+    catsEl.innerHTML = '';
+    const tumBtn = document.createElement('button');
+    tumBtn.className = 'menu-cat-btn' + (!aktifKategori ? ' active' : '');
+    tumBtn.textContent = 'Tümü';
+    tumBtn.onclick = () => { aktifKategori = null; renderMenuPanel(); };
+    catsEl.appendChild(tumBtn);
+    Object.keys(menuData).forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'menu-cat-btn' + (aktifKategori === cat ? ' active' : '');
+        btn.textContent = cat;
+        btn.onclick = () => { aktifKategori = cat; renderMenuPanel(); };
+        catsEl.appendChild(btn);
+    });
+
+    const itemsEl = document.getElementById('menuItemsList');
+    itemsEl.innerHTML = '';
+    const tumUrunler = [];
+    Object.entries(menuData).forEach(([cat, catData]) => {
+        if (aktifKategori && aktifKategori !== cat) return;
+        const subcats = catData.alt_kategoriler
+            ? Object.values(catData.alt_kategoriler)
+            : catData.items ? [catData.items] : [];
+        subcats.forEach(arr => arr.forEach(item => tumUrunler.push(item)));
+    });
+    const q = menuArama.toLowerCase();
+    const liste = q ? tumUrunler.filter(i => i.ad.toLowerCase().includes(q)) : tumUrunler;
+    if (!liste.length) {
+        itemsEl.innerHTML = '<div class="sepet-bos">Ürün bulunamadı</div>';
+        return;
+    }
+    liste.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'menu-item-btn';
+        btn.innerHTML = '<span>' + item.ad + '</span><span class="item-fiyat">' + item.fiyat + ' ₺</span>';
+        btn.onclick = () => addToAdisyon(item);
+        itemsEl.appendChild(btn);
+    });
+}
+
+function addToAdisyon(item) {
+    if (!aktifMasaId) return;
+    if (!adisyonlar[aktifMasaId]) {
+        adisyonlar[aktifMasaId] = { acilis: new Date().toLocaleString('tr-TR'), items: [] };
+        document.getElementById('adisyonAcilis').textContent = 'Açılış: ' + adisyonlar[aktifMasaId].acilis;
+    }
+    const var_ = adisyonlar[aktifMasaId].items.find(i => i.ad === item.ad && i.fiyat === item.fiyat);
+    if (var_) { var_.adet++; } else { adisyonlar[aktifMasaId].items.push({ ad: item.ad, fiyat: item.fiyat, adet: 1 }); }
+    renderSepet();
+    autoSaveAdisyon();
+}
+
+function changeAdet(idx, delta) {
+    if (!aktifMasaId || !adisyonlar[aktifMasaId]) return;
+    adisyonlar[aktifMasaId].items[idx].adet += delta;
+    if (adisyonlar[aktifMasaId].items[idx].adet <= 0) adisyonlar[aktifMasaId].items.splice(idx, 1);
+    if (!adisyonlar[aktifMasaId].items.length) delete adisyonlar[aktifMasaId];
+    renderSepet();
+    autoSaveAdisyon();
+}
+
+function renderSepet() {
+    const sepetEl   = document.getElementById('sepetItems');
+    const toplamEl  = document.getElementById('sepetToplam');
+    const kapatBtn  = document.getElementById('btnHesabiKapat');
+    const items     = adisyonlar[aktifMasaId]?.items || [];
+    if (!items.length) {
+        sepetEl.innerHTML = '<div class="sepet-bos">Henüz ürün eklenmedi</div>';
+        toplamEl.textContent = '0 ₺';
+        kapatBtn.disabled = true;
+        return;
+    }
+    kapatBtn.disabled = false;
+    sepetEl.innerHTML = '';
+    let toplam = 0;
+    items.forEach((item, idx) => {
+        toplam += item.fiyat * item.adet;
+        const row = document.createElement('div');
+        row.className = 'sepet-row';
+        row.innerHTML =
+            '<div class="sepet-row-ad">' + item.ad + '</div>' +
+            '<div class="sepet-adet">' +
+                '<button class="btn-adet" onclick="changeAdet(' + idx + ',-1)">−</button>' +
+                '<span class="sepet-adet-num">' + item.adet + '</span>' +
+                '<button class="btn-adet" onclick="changeAdet(' + idx + ',1)">+</button>' +
+            '</div>' +
+            '<div class="sepet-row-fiyat">' + (item.fiyat * item.adet).toFixed(0) + ' ₺</div>';
+        sepetEl.appendChild(row);
+    });
+    toplamEl.textContent = toplam.toFixed(0) + ' ₺';
+}
+
+async function autoSaveAdisyon() {
+    if (!aktifMasaId) return;
+    const fd = new FormData();
+    fd.append('action', 'save_adisyon');
+    fd.append('masa_id', aktifMasaId);
+    fd.append('items', JSON.stringify(adisyonlar[aktifMasaId]?.items || []));
+    if (adisyonlar[aktifMasaId]) fd.append('acilis', adisyonlar[aktifMasaId].acilis);
+    try { await fetch('admin.php', { method: 'POST', body: fd }); } catch (e) {}
+}
+
+async function hesabiKapat() {
+    if (!aktifMasaId) return;
+    const masa   = masalar.find(m => m.id === aktifMasaId);
+    const items  = adisyonlar[aktifMasaId]?.items || [];
+    const toplam = items.reduce((s, i) => s + i.fiyat * i.adet, 0);
+    if (!confirm((masa?.ad || 'Masa') + ' hesabı kapatılsın mı?\nToplam: ' + toplam.toFixed(0) + ' ₺')) return;
+    delete adisyonlar[aktifMasaId];
+    const fd = new FormData();
+    fd.append('action', 'close_adisyon');
+    fd.append('masa_id', aktifMasaId);
+    try { await fetch('admin.php', { method: 'POST', body: fd }); } catch (e) {}
+    closeAdisyonModal();
 }
 
 async function saveAyarlar() {
