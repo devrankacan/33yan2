@@ -48,8 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'get_masalar') {
         $path = __DIR__ . '/masalar.json';
-        $data = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
-        echo json_encode(['ok' => true, 'data' => $data ?: []]);
+        $raw  = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
+        $data = (is_array($raw) && array_values($raw) === $raw) ? $raw : [];
+        echo json_encode(['ok' => true, 'data' => $data]);
         exit;
     }
 
@@ -638,7 +639,7 @@ async function loadKasa() {
         fd.append('action', 'get_masalar');
         const res = await fetch('admin.php', { method: 'POST', body: fd });
         const data = await res.json();
-        masalar = data.data || [];
+        masalar = Array.isArray(data.data) ? data.data : [];
         renderMasalar();
     } catch (e) {
         canvas.innerHTML = '<div class="bos-mesaj" style="color:#f55">Yüklenemedi: ' + e.message + '</div>';
