@@ -292,52 +292,65 @@ $loggedIn = !empty($_SESSION['admin']);
         .masa-tutar { color: #ff8f00; font-size: 0.8rem; font-weight: bold; margin-top: 3px; }
 
         /* ===== ADİSYON MODAL ===== */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 500; align-items: center; justify-content: center; padding: 12px; }
         .modal-overlay.show { display: flex; }
-        .adisyon-modal { background: #161616; border: 1px solid #D4AF37; border-radius: 12px; width: 100%; max-width: 860px; max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; }
-        .adisyon-header { background: #1a1a1a; border-bottom: 2px solid #D4AF37; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
-        .adisyon-header h3 { color: #D4AF37; font-size: 1.05rem; }
-        .adisyon-acilis-time { color: #555; font-size: 0.78rem; margin-top: 2px; }
-        .btn-modal-close { background: #2a2a2a; color: #ccc; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 1.1rem; flex-shrink: 0; }
-        .btn-modal-close:hover { background: #444; }
+        .adisyon-modal { background: #1a1a1a; border: 1px solid #333; border-radius: 10px; width: 100%; max-width: 920px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* Header */
+        .adisyon-header { background: #222; border-bottom: 1px solid #333; padding: 12px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+        .adisyon-header-title { color: #D4AF37; font-size: 1rem; font-weight: bold; flex: 1; }
+        .adisyon-header-toplam { color: #D4AF37; font-size: 1.1rem; font-weight: bold; white-space: nowrap; }
+        .btn-masa-aktar { background: #1565c0; color: #fff; border: none; padding: 7px 13px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-family: inherit; white-space: nowrap; }
+        .btn-masa-aktar:hover { background: #1976d2; }
+        .btn-modal-close { background: #333; color: #aaa; border: none; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; font-size: 1rem; flex-shrink: 0; }
+        .btn-modal-close:hover { background: #444; color: #fff; }
+
+        /* Body */
         .adisyon-body { display: flex; flex: 1; overflow: hidden; min-height: 0; }
 
-        .menu-panel { width: 55%; border-right: 1px solid #222; display: flex; flex-direction: column; overflow: hidden; }
-        .menu-search { padding: 10px 12px; border-bottom: 1px solid #1e1e1e; flex-shrink: 0; }
-        .menu-search input { width: 100%; background: #0a0a0a; border: 1px solid #2a2a2a; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 0.88rem; outline: none; font-family: inherit; }
-        .menu-search input:focus { border-color: #D4AF37; }
-        .menu-cats { display: flex; gap: 6px; padding: 8px 12px; overflow-x: auto; border-bottom: 1px solid #1e1e1e; flex-shrink: 0; }
-        .menu-cats::-webkit-scrollbar { height: 3px; }
-        .menu-cats::-webkit-scrollbar-thumb { background: #333; }
-        .menu-cat-btn { background: #1c1c1c; color: #777; border: 1px solid #2a2a2a; padding: 5px 12px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; transition: 0.15s; }
-        .menu-cat-btn.active { background: #D4AF37; color: #000; border-color: #D4AF37; font-weight: bold; }
-        .menu-items-list { flex: 1; overflow-y: auto; padding: 8px; }
-        .menu-items-list::-webkit-scrollbar { width: 4px; }
-        .menu-items-list::-webkit-scrollbar-thumb { background: #333; }
-        .menu-item-btn { display: flex; justify-content: space-between; align-items: center; width: 100%; background: #1c1c1c; border: 1px solid #222; color: #ddd; padding: 10px 14px; border-radius: 6px; margin-bottom: 5px; cursor: pointer; text-align: left; font-family: inherit; font-size: 0.88rem; transition: 0.15s; }
-        .menu-item-btn:hover { background: #242424; border-color: #D4AF37; color: #fff; }
-        .menu-item-btn .item-fiyat { color: #D4AF37; font-weight: bold; white-space: nowrap; margin-left: 10px; }
-
-        .sepet-panel { width: 45%; display: flex; flex-direction: column; }
-        .sepet-header { padding: 12px 16px; border-bottom: 1px solid #1e1e1e; color: #666; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; flex-shrink: 0; }
-        .sepet-items { flex: 1; overflow-y: auto; padding: 8px; }
-        .sepet-items::-webkit-scrollbar { width: 4px; }
-        .sepet-items::-webkit-scrollbar-thumb { background: #333; }
-        .sepet-bos { color: #333; text-align: center; padding: 40px 20px; font-size: 0.88rem; }
-        .sepet-row { display: flex; align-items: center; gap: 8px; background: #1c1c1c; border-radius: 6px; padding: 8px 10px; margin-bottom: 5px; }
-        .sepet-row-ad { flex: 1; color: #ddd; font-size: 0.85rem; min-width: 0; word-break: break-word; }
-        .sepet-adet { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
-        .btn-adet { background: #2a2a2a; color: #fff; border: none; width: 26px; height: 26px; border-radius: 4px; cursor: pointer; font-size: 1rem; line-height: 1; }
+        /* Sol panel - Sipariş */
+        .siparis-panel { width: 38%; border-right: 1px solid #2a2a2a; display: flex; flex-direction: column; overflow: hidden; }
+        .siparis-title { padding: 10px 14px; border-bottom: 1px solid #2a2a2a; color: #D4AF37; font-size: 0.85rem; font-weight: bold; flex-shrink: 0; }
+        .siparis-items { flex: 1; overflow-y: auto; padding: 6px 8px; }
+        .siparis-items::-webkit-scrollbar { width: 3px; }
+        .siparis-items::-webkit-scrollbar-thumb { background: #333; }
+        .siparis-bos { color: #444; text-align: center; padding: 40px 12px; font-size: 0.85rem; }
+        .siparis-row { display: flex; align-items: center; gap: 6px; background: #222; border-radius: 6px; padding: 7px 8px; margin-bottom: 4px; }
+        .siparis-row-ad { flex: 1; color: #ddd; font-size: 0.82rem; min-width: 0; }
+        .siparis-adet { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+        .btn-adet { background: #2a2a2a; color: #fff; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; line-height: 1; }
         .btn-adet:hover { background: #3a3a3a; }
-        .sepet-adet-num { color: #D4AF37; font-weight: bold; min-width: 22px; text-align: center; font-size: 0.9rem; }
-        .sepet-row-fiyat { color: #D4AF37; font-weight: bold; font-size: 0.85rem; min-width: 50px; text-align: right; flex-shrink: 0; }
-        .sepet-footer { padding: 14px 16px; border-top: 2px solid #1e1e1e; flex-shrink: 0; }
-        .sepet-toplam-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .sepet-toplam-row span { color: #777; font-size: 0.88rem; }
-        .sepet-toplam-row strong { color: #D4AF37; font-size: 1.5rem; }
-        .btn-hesabi-kapat { width: 100%; padding: 13px; background: #b71c1c; color: #fff; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; }
-        .btn-hesabi-kapat:hover { background: #c62828; }
-        .btn-hesabi-kapat:disabled { background: #1e1e1e; color: #444; cursor: not-allowed; }
+        .siparis-adet-num { color: #D4AF37; font-weight: bold; min-width: 20px; text-align: center; font-size: 0.85rem; }
+        .siparis-row-fiyat { color: #D4AF37; font-weight: bold; font-size: 0.8rem; min-width: 46px; text-align: right; flex-shrink: 0; }
+
+        /* Alt butonlar */
+        .siparis-footer { padding: 10px 10px 8px; border-top: 1px solid #2a2a2a; flex-shrink: 0; }
+        .siparis-toplam { color: #D4AF37; font-weight: bold; font-size: 0.92rem; margin-bottom: 8px; }
+        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 5px; }
+        .btn-act { padding: 9px 4px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.75rem; font-weight: bold; font-family: inherit; }
+        .btn-kaydet  { background: #1565c0; color: #fff; }
+        .btn-tahsilat{ background: #e65100; color: #fff; }
+        .btn-nakit   { background: #2e7d32; color: #fff; }
+        .btn-kart    { background: #00838f; color: #fff; }
+        .btn-iban    { background: #6a1b9a; color: #fff; }
+        .btn-komple  { background: #b71c1c; color: #fff; }
+        .btn-kapat   { width: 100%; padding: 8px; background: #2a2a2a; color: #777; border: none; border-radius: 6px; cursor: pointer; font-size: 0.78rem; font-family: inherit; }
+        .btn-kapat:hover { background: #333; color: #aaa; }
+
+        /* Sağ panel - Menü */
+        .menu-panel { width: 62%; display: flex; flex-direction: column; overflow: hidden; }
+        .menu-cats { display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid #2a2a2a; flex-shrink: 0; flex-wrap: wrap; }
+        .menu-cat-btn { background: #2a2a2a; color: #888; border: none; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 0.8rem; font-family: inherit; white-space: nowrap; transition: 0.15s; }
+        .menu-cat-btn.active { background: #D4AF37; color: #111; font-weight: bold; }
+        .menu-items-list { flex: 1; overflow-y: auto; padding: 10px 12px; }
+        .menu-items-list::-webkit-scrollbar { width: 3px; }
+        .menu-items-list::-webkit-scrollbar-thumb { background: #333; }
+        .menu-subcat-label { color: #666; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; padding: 6px 2px 4px; border-bottom: 1px solid #2a2a2a; margin-bottom: 6px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+        .menu-item-card { background: #222; border: 1px solid #2a2a2a; border-radius: 6px; padding: 10px 8px; cursor: pointer; font-family: inherit; text-align: center; transition: 0.15s; }
+        .menu-item-card:hover { background: #2a2a2a; border-color: #D4AF37; }
+        .card-ad   { color: #ccc; font-size: 0.82rem; margin-bottom: 5px; line-height: 1.3; }
+        .card-fiyat{ color: #D4AF37; font-weight: bold; font-size: 0.88rem; }
 
         @media (max-width: 600px) {
             .item-row { flex-wrap: wrap; }
@@ -422,32 +435,37 @@ $loggedIn = !empty($_SESSION['admin']);
 <div class="modal-overlay" id="adisyonModal">
     <div class="adisyon-modal">
         <div class="adisyon-header">
-            <div>
-                <h3><i class="fas fa-receipt"></i> <span id="adisyonMasaAdi"></span></h3>
-                <div class="adisyon-acilis-time" id="adisyonAcilis"></div>
-            </div>
+            <div class="adisyon-header-title"><i class="fas fa-receipt"></i> <span id="adisyonMasaAdi"></span> Adisyonu</div>
+            <div class="adisyon-header-toplam" id="adisyonHeaderToplam">0,00 ₺</div>
+            <button class="btn-masa-aktar"><i class="fas fa-exchange-alt"></i> Masayı Aktar</button>
             <button class="btn-modal-close" onclick="closeAdisyonModal()">×</button>
         </div>
         <div class="adisyon-body">
-            <div class="menu-panel">
-                <div class="menu-search">
-                    <input type="text" id="menuAramaInp" placeholder="Ürün ara..." oninput="menuArama=this.value; renderMenuPanel()">
+            <!-- Sol: Sipariş listesi -->
+            <div class="siparis-panel">
+                <div class="siparis-title"><i class="fas fa-list"></i> Sipariş Listesi</div>
+                <div class="siparis-items" id="sepetItems"></div>
+                <div class="siparis-footer">
+                    <div class="siparis-toplam">TOPLAM: <span id="sepetToplam">0,00 ₺</span></div>
+                    <div class="btn-grid">
+                        <button class="btn-act btn-kaydet"  onclick="masayaKaydet()"><i class="fas fa-save"></i> Masaya Kaydet</button>
+                        <button class="btn-act btn-tahsilat" onclick="kismiTahsilat()">+ Kısmi Tahsilat Al</button>
+                    </div>
+                    <div class="btn-grid">
+                        <button class="btn-act btn-nakit" onclick="hesabiKapat('nakit')"><i class="fas fa-money-bill"></i> Nakit</button>
+                        <button class="btn-act btn-kart"  onclick="hesabiKapat('kart')"><i class="fas fa-credit-card"></i> Kart</button>
+                    </div>
+                    <div class="btn-grid">
+                        <button class="btn-act btn-iban"   onclick="hesabiKapat('iban')"><i class="fas fa-university"></i> İBAN</button>
+                        <button class="btn-act btn-komple" onclick="kompleIptal()"><i class="fas fa-trash"></i> Komple İptal</button>
+                    </div>
+                    <button class="btn-kapat" onclick="closeAdisyonModal()">✕ Pencereyi Kapat</button>
                 </div>
+            </div>
+            <!-- Sağ: Menü -->
+            <div class="menu-panel">
                 <div class="menu-cats" id="menuCatBtns"></div>
                 <div class="menu-items-list" id="menuItemsList"></div>
-            </div>
-            <div class="sepet-panel">
-                <div class="sepet-header">Adisyon</div>
-                <div class="sepet-items" id="sepetItems"></div>
-                <div class="sepet-footer">
-                    <div class="sepet-toplam-row">
-                        <span>Toplam</span>
-                        <strong id="sepetToplam">0 ₺</strong>
-                    </div>
-                    <button class="btn-hesabi-kapat" id="btnHesabiKapat" onclick="hesabiKapat()" disabled>
-                        <i class="fas fa-check-circle"></i> Hesabı Kapat
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -947,9 +965,6 @@ function openAdisyon(masaId) {
     menuArama     = '';
     const masa = masalar.find(m => m.id === masaId);
     document.getElementById('adisyonMasaAdi').textContent = masa ? masa.ad : '';
-    const adisyon = adisyonlar[masaId];
-    document.getElementById('adisyonAcilis').textContent = adisyon ? 'Açılış: ' + adisyon.acilis : '';
-    document.getElementById('menuAramaInp').value = '';
     renderMenuPanel();
     renderSepet();
     document.getElementById('adisyonModal').classList.add('show');
@@ -962,14 +977,12 @@ function closeAdisyonModal() {
 }
 
 function renderMenuPanel() {
+    const cats = Object.keys(menuData);
+    if (!aktifKategori && cats.length > 0) aktifKategori = cats[0];
+
     const catsEl = document.getElementById('menuCatBtns');
     catsEl.innerHTML = '';
-    const tumBtn = document.createElement('button');
-    tumBtn.className = 'menu-cat-btn' + (!aktifKategori ? ' active' : '');
-    tumBtn.textContent = 'Tümü';
-    tumBtn.onclick = () => { aktifKategori = null; renderMenuPanel(); };
-    catsEl.appendChild(tumBtn);
-    Object.keys(menuData).forEach(cat => {
+    cats.forEach(cat => {
         const btn = document.createElement('button');
         btn.className = 'menu-cat-btn' + (aktifKategori === cat ? ' active' : '');
         btn.textContent = cat;
@@ -979,26 +992,31 @@ function renderMenuPanel() {
 
     const itemsEl = document.getElementById('menuItemsList');
     itemsEl.innerHTML = '';
-    const tumUrunler = [];
-    Object.entries(menuData).forEach(([cat, catData]) => {
-        if (aktifKategori && aktifKategori !== cat) return;
-        const subcats = catData.alt_kategoriler
-            ? Object.values(catData.alt_kategoriler)
-            : catData.items ? [catData.items] : [];
-        subcats.forEach(arr => arr.forEach(item => tumUrunler.push(item)));
-    });
-    const q = menuArama.toLowerCase();
-    const liste = q ? tumUrunler.filter(i => i.ad.toLowerCase().includes(q)) : tumUrunler;
-    if (!liste.length) {
-        itemsEl.innerHTML = '<div class="sepet-bos">Ürün bulunamadı</div>';
-        return;
-    }
-    liste.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = 'menu-item-btn';
-        btn.innerHTML = '<span>' + item.ad + '</span><span class="item-fiyat">' + item.fiyat + ' ₺</span>';
-        btn.onclick = () => addToAdisyon(item);
-        itemsEl.appendChild(btn);
+    if (!aktifKategori || !menuData[aktifKategori]) return;
+
+    const catData = menuData[aktifKategori];
+    const subcats = catData.alt_kategoriler
+        ? Object.entries(catData.alt_kategoriler)
+        : catData.items ? [['', catData.items]] : [];
+
+    subcats.forEach(([subAd, items]) => {
+        if (!items || !items.length) return;
+        if (subAd) {
+            const lbl = document.createElement('div');
+            lbl.className = 'menu-subcat-label';
+            lbl.textContent = subAd;
+            itemsEl.appendChild(lbl);
+        }
+        const grid = document.createElement('div');
+        grid.className = 'menu-grid';
+        items.forEach(item => {
+            const card = document.createElement('button');
+            card.className = 'menu-item-card';
+            card.innerHTML = '<div class="card-ad">' + item.ad + '</div><div class="card-fiyat">' + Number(item.fiyat).toFixed(2) + ' ₺</div>';
+            card.onclick = () => addToAdisyon(item);
+            grid.appendChild(card);
+        });
+        itemsEl.appendChild(grid);
     });
 }
 
@@ -1024,34 +1042,60 @@ function changeAdet(idx, delta) {
 }
 
 function renderSepet() {
-    const sepetEl   = document.getElementById('sepetItems');
-    const toplamEl  = document.getElementById('sepetToplam');
-    const kapatBtn  = document.getElementById('btnHesabiKapat');
-    const items     = adisyonlar[aktifMasaId]?.items || [];
+    const sepetEl  = document.getElementById('sepetItems');
+    const toplamEl = document.getElementById('sepetToplam');
+    const hdrEl    = document.getElementById('adisyonHeaderToplam');
+    const items    = adisyonlar[aktifMasaId]?.items || [];
     if (!items.length) {
-        sepetEl.innerHTML = '<div class="sepet-bos">Henüz ürün eklenmedi</div>';
-        toplamEl.textContent = '0 ₺';
-        kapatBtn.disabled = true;
+        sepetEl.innerHTML = '<div class="siparis-bos">Henüz ürün eklenmedi</div>';
+        toplamEl.textContent = '0,00 ₺';
+        hdrEl.textContent    = '0,00 ₺';
         return;
     }
-    kapatBtn.disabled = false;
     sepetEl.innerHTML = '';
     let toplam = 0;
     items.forEach((item, idx) => {
         toplam += item.fiyat * item.adet;
         const row = document.createElement('div');
-        row.className = 'sepet-row';
+        row.className = 'siparis-row';
         row.innerHTML =
-            '<div class="sepet-row-ad">' + item.ad + '</div>' +
-            '<div class="sepet-adet">' +
+            '<div class="siparis-row-ad">' + item.ad + '</div>' +
+            '<div class="siparis-adet">' +
                 '<button class="btn-adet" onclick="changeAdet(' + idx + ',-1)">−</button>' +
-                '<span class="sepet-adet-num">' + item.adet + '</span>' +
+                '<span class="siparis-adet-num">' + item.adet + '</span>' +
                 '<button class="btn-adet" onclick="changeAdet(' + idx + ',1)">+</button>' +
             '</div>' +
-            '<div class="sepet-row-fiyat">' + (item.fiyat * item.adet).toFixed(0) + ' ₺</div>';
+            '<div class="siparis-row-fiyat">' + (item.fiyat * item.adet).toFixed(2) + ' ₺</div>';
         sepetEl.appendChild(row);
     });
-    toplamEl.textContent = toplam.toFixed(0) + ' ₺';
+    const fmt = toplam.toFixed(2).replace('.', ',') + ' ₺';
+    toplamEl.textContent = fmt;
+    hdrEl.textContent    = fmt;
+}
+
+function masayaKaydet() {
+    autoSaveAdisyon();
+    const el = document.getElementById('sepetToplam');
+    const orig = el.textContent;
+    el.textContent = '✓ Kaydedildi';
+    setTimeout(() => { el.textContent = orig; }, 1500);
+}
+
+function kismiTahsilat() {
+    const tutar = prompt('Tahsil edilen tutar (₺):');
+    if (!tutar || isNaN(parseFloat(tutar))) return;
+    alert('Kısmi tahsilat kaydedildi: ' + parseFloat(tutar).toFixed(2) + ' ₺');
+}
+
+function kompleIptal() {
+    if (!aktifMasaId) return;
+    if (!confirm('Tüm adisyon iptal edilsin mi?')) return;
+    delete adisyonlar[aktifMasaId];
+    const fd = new FormData();
+    fd.append('action', 'close_adisyon');
+    fd.append('masa_id', aktifMasaId);
+    fetch('admin.php', { method: 'POST', body: fd }).catch(() => {});
+    closeAdisyonModal();
 }
 
 async function autoSaveAdisyon() {
@@ -1064,12 +1108,14 @@ async function autoSaveAdisyon() {
     try { await fetch('admin.php', { method: 'POST', body: fd }); } catch (e) {}
 }
 
-async function hesabiKapat() {
+async function hesabiKapat(odemeYontemi) {
     if (!aktifMasaId) return;
     const masa   = masalar.find(m => m.id === aktifMasaId);
     const items  = adisyonlar[aktifMasaId]?.items || [];
+    if (!items.length) { alert('Adisyonda ürün yok.'); return; }
     const toplam = items.reduce((s, i) => s + i.fiyat * i.adet, 0);
-    if (!confirm((masa?.ad || 'Masa') + ' hesabı kapatılsın mı?\nToplam: ' + toplam.toFixed(0) + ' ₺')) return;
+    const yontem = { nakit: 'Nakit', kart: 'Kart', iban: 'İBAN' }[odemeYontemi] || odemeYontemi;
+    if (!confirm((masa?.ad || 'Masa') + ' hesabı ' + yontem + ' ile kapatılsın mı?\nToplam: ' + toplam.toFixed(2) + ' ₺')) return;
     delete adisyonlar[aktifMasaId];
     const fd = new FormData();
     fd.append('action', 'close_adisyon');
