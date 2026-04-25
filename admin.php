@@ -759,6 +759,7 @@ let masalar = [];
 let adisyonlar = {};
 let duzenlemeMode = false;
 let dragState = null;
+let dragMoved = false;
 let aktifMasaId = null;
 let aktifKategori = null;
 let menuArama = '';
@@ -834,12 +835,13 @@ function renderMasalar() {
         box.appendChild(delBtn);
 
         box.addEventListener('click', e => {
-            if (duzenlemeMode || e.target === delBtn) return;
+            if (e.target === delBtn || dragMoved) return;
             openAdisyon(masa.id);
         });
 
         box.addEventListener('mousedown', e => {
             if (!duzenlemeMode || e.target === delBtn) return;
+            dragMoved = false;
             e.preventDefault();
             const canvasRect = canvas.getBoundingClientRect();
             dragState = {
@@ -875,6 +877,7 @@ document.addEventListener('mousemove', e => {
 
 document.addEventListener('mouseup', () => {
     if (dragState) { dragState.box.classList.remove('dragging'); dragState = null; }
+    setTimeout(() => { dragMoved = false; }, 0);
 });
 
 document.addEventListener('touchmove', e => {
@@ -887,6 +890,7 @@ document.addEventListener('touchend', () => {
 });
 
 function moveDrag(cx, cy) {
+    dragMoved = true;
     const canvas = document.getElementById('masaCanvas');
     const rect   = canvas.getBoundingClientRect();
     let nx = cx - rect.left - dragState.offX;
@@ -910,10 +914,6 @@ function toggleDuzenleme() {
 }
 
 function yeniMasaEkle() {
-    if (!duzenlemeMode) {
-        alert('Önce "Masa Düzenle" modunu açın.');
-        return;
-    }
     const ad = prompt('Masa adı:', 'Masa ' + (masalar.length + 1));
     if (!ad || !ad.trim()) return;
     const idx = masalar.length;
