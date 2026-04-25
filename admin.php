@@ -46,6 +46,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if ($action === 'get_masalar') {
+        $path = __DIR__ . '/masalar.json';
+        $data = file_exists($path) ? json_decode(file_get_contents($path), true) : [];
+        echo json_encode(['ok' => true, 'data' => $data ?: []]);
+        exit;
+    }
+
+    if ($action === 'save_masalar') {
+        $data = json_decode($_POST['data'] ?? '', true);
+        if ($data !== null) {
+            file_put_contents(__DIR__ . '/masalar.json', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            echo json_encode(['ok' => true]);
+        } else {
+            echo json_encode(['ok' => false, 'msg' => 'Geçersiz veri']);
+        }
+        exit;
+    }
+
     echo json_encode(['ok' => false, 'msg' => 'Bilinmeyen işlem']);
     exit;
 }
@@ -165,6 +183,69 @@ $loggedIn = !empty($_SESSION['admin']);
         .inp-col-header span:nth-child(3) { flex: 5; }
         .inp-col-header span:nth-child(4) { width: 34px; flex-shrink: 0; }
 
+        /* ===== KASA / MASA ===== */
+        .kasa-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+        .kasa-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        #kasaStatus { font-size: 0.9rem; font-weight: bold; }
+        #kasaStatus.ok { color: #4caf50; }
+        #kasaStatus.err { color: #f55; }
+        .btn-kasa { background: #1c1c1c; color: #D4AF37; border: 1px solid #444; padding: 9px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: 0.2s; white-space: nowrap; }
+        .btn-kasa:hover { border-color: #D4AF37; }
+        .btn-kasa.active { background: #D4AF37; color: #000; border-color: #D4AF37; }
+        .btn-kasa-green { background: #1b5e20; color: #fff; border-color: #2e7d32; }
+        .btn-kasa-green:hover { background: #2e7d32; border-color: #2e7d32; }
+
+        #masaCanvas {
+            position: relative;
+            width: 100%;
+            min-height: 520px;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #masaCanvas.duzenleme {
+            background-image:
+                linear-gradient(#1a1a1a 1px, transparent 1px),
+                linear-gradient(90deg, #1a1a1a 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        #masaCanvas .bos-mesaj { color: #333; padding: 80px; text-align: center; font-size: 0.95rem; pointer-events: none; }
+
+        .masa-box {
+            position: absolute;
+            width: 88px;
+            height: 88px;
+            background: #1c1c1c;
+            border: 2px solid #2e7d32;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .masa-box:hover { box-shadow: 0 0 14px rgba(212,175,55,0.25); border-color: #D4AF37; }
+        .masa-box.dragging { opacity: 0.85; z-index: 99; box-shadow: 0 6px 24px rgba(0,0,0,0.6); }
+        .masa-box.duzenleme-mod { cursor: grab; }
+        .masa-box.duzenleme-mod:active { cursor: grabbing; }
+        .masa-ad { color: #D4AF37; font-weight: bold; font-size: 0.85rem; text-align: center; padding: 0 6px; line-height: 1.2; }
+        .masa-bos { color: #3a3a3a; font-size: 0.7rem; margin-top: 4px; }
+        .masa-del-btn {
+            display: none;
+            position: absolute;
+            top: -9px; right: -9px;
+            width: 22px; height: 22px;
+            background: #c62828; color: #fff;
+            border: none; border-radius: 50%;
+            cursor: pointer; font-size: 0.75rem;
+            align-items: center; justify-content: center;
+            line-height: 1; z-index: 2;
+        }
+        #masaCanvas.duzenleme .masa-del-btn { display: flex; }
+
         @media (max-width: 600px) {
             .item-row { flex-wrap: wrap; }
             .inp-name, .inp-desc { flex: 1 1 100%; }
@@ -201,6 +282,7 @@ $loggedIn = !empty($_SESSION['admin']);
     <div class="adm-tabs">
         <div class="adm-tab active" onclick="switchTab('menu', this)"><i class="fas fa-utensils"></i> Menü Düzenle</div>
         <div class="adm-tab" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Mekan Ayarları</div>
+        <div class="adm-tab" onclick="switchTab('kasa', this)"><i class="fas fa-cash-register"></i> Kasa</div>
     </div>
 
     <div class="adm-body">
@@ -241,6 +323,28 @@ $loggedIn = !empty($_SESSION['admin']);
             </div>
             <button class="btn-save-settings" onclick="saveAyarlar()"><i class="fas fa-save"></i> Ayarları Kaydet</button>
             <div id="settingsStatus"></div>
+        </div>
+
+        <!-- Kasa Tab -->
+        <div class="tab-content" id="tab-kasa">
+            <div class="kasa-toolbar">
+                <div class="page-title"><i class="fas fa-th"></i> Masalar</div>
+                <div class="kasa-btns">
+                    <span id="kasaStatus"></span>
+                    <button class="btn-kasa" id="btnDuzenleme" onclick="toggleDuzenleme()">
+                        <i class="fas fa-arrows-alt"></i> Masa Düzenle
+                    </button>
+                    <button class="btn-kasa btn-kasa-green" onclick="yeniMasaEkle()">
+                        <i class="fas fa-plus"></i> Masa Ekle
+                    </button>
+                    <button class="btn-save" onclick="saveMasalar()">
+                        <i class="fas fa-save"></i> Kaydet
+                    </button>
+                </div>
+            </div>
+            <div id="masaCanvas">
+                <div class="bos-mesaj">Yükleniyor...</div>
+            </div>
         </div>
 
     </div>
@@ -306,6 +410,7 @@ function switchTab(name, el) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
+    if (name === 'kasa') loadKasa();
 }
 
 // ===== RENDER MENU =====
@@ -519,6 +624,167 @@ function renderAyarlar() {
     document.getElementById('set-wifi').value    = ayarlarData.wifi      || '';
     document.getElementById('set-insta').value   = ayarlarData.instagram || '';
     document.getElementById('set-email').value   = ayarlarData.email     || '';
+}
+
+// ===== KASA / MASA =====
+let masalar = [];
+let duzenlemeMode = false;
+let dragState = null;
+
+async function loadKasa() {
+    const canvas = document.getElementById('masaCanvas');
+    try {
+        const fd = new FormData();
+        fd.append('action', 'get_masalar');
+        const res = await fetch('admin.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        masalar = data.data || [];
+        renderMasalar();
+    } catch (e) {
+        canvas.innerHTML = '<div class="bos-mesaj" style="color:#f55">Yüklenemedi: ' + e.message + '</div>';
+    }
+}
+
+function renderMasalar() {
+    const canvas = document.getElementById('masaCanvas');
+    canvas.innerHTML = '';
+    canvas.classList.toggle('duzenleme', duzenlemeMode);
+
+    if (masalar.length === 0) {
+        canvas.innerHTML = '<div class="bos-mesaj">Henüz masa eklenmedi.<br>Masa Düzenle modunda "Masa Ekle" butonunu kullanın.</div>';
+        return;
+    }
+
+    masalar.forEach(masa => {
+        const box = document.createElement('div');
+        box.className = 'masa-box' + (duzenlemeMode ? ' duzenleme-mod' : '');
+        box.style.left = (masa.x || 20) + 'px';
+        box.style.top  = (masa.y || 20) + 'px';
+        box.dataset.id = masa.id;
+
+        const adEl = document.createElement('div');
+        adEl.className = 'masa-ad';
+        adEl.textContent = masa.ad;
+        box.appendChild(adEl);
+
+        const bosEl = document.createElement('div');
+        bosEl.className = 'masa-bos';
+        bosEl.textContent = 'Boş';
+        box.appendChild(bosEl);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'masa-del-btn';
+        delBtn.innerHTML = '&times;';
+        delBtn.title = 'Sil';
+        delBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            if (confirm('"' + masa.ad + '" silinsin mi?')) {
+                masalar = masalar.filter(m => m.id !== masa.id);
+                renderMasalar();
+            }
+        });
+        box.appendChild(delBtn);
+
+        box.addEventListener('mousedown', e => {
+            if (!duzenlemeMode || e.target === delBtn) return;
+            e.preventDefault();
+            const canvasRect = canvas.getBoundingClientRect();
+            dragState = {
+                masa,
+                box,
+                offX: e.clientX - canvasRect.left - masa.x,
+                offY: e.clientY - canvasRect.top  - masa.y
+            };
+            box.classList.add('dragging');
+        });
+
+        box.addEventListener('touchstart', e => {
+            if (!duzenlemeMode || e.target === delBtn) return;
+            const touch = e.touches[0];
+            const canvasRect = canvas.getBoundingClientRect();
+            dragState = {
+                masa,
+                box,
+                offX: touch.clientX - canvasRect.left - masa.x,
+                offY: touch.clientY - canvasRect.top  - masa.y
+            };
+            box.classList.add('dragging');
+        }, { passive: true });
+
+        canvas.appendChild(box);
+    });
+}
+
+document.addEventListener('mousemove', e => {
+    if (!dragState) return;
+    moveDrag(e.clientX, e.clientY);
+});
+
+document.addEventListener('mouseup', () => {
+    if (dragState) { dragState.box.classList.remove('dragging'); dragState = null; }
+});
+
+document.addEventListener('touchmove', e => {
+    if (!dragState) return;
+    moveDrag(e.touches[0].clientX, e.touches[0].clientY);
+}, { passive: true });
+
+document.addEventListener('touchend', () => {
+    if (dragState) { dragState.box.classList.remove('dragging'); dragState = null; }
+});
+
+function moveDrag(cx, cy) {
+    const canvas = document.getElementById('masaCanvas');
+    const rect   = canvas.getBoundingClientRect();
+    let nx = cx - rect.left - dragState.offX;
+    let ny = cy - rect.top  - dragState.offY;
+    nx = Math.max(0, Math.min(nx, canvas.offsetWidth  - 90));
+    ny = Math.max(0, Math.min(ny, canvas.offsetHeight - 90));
+    dragState.masa.x = Math.round(nx);
+    dragState.masa.y = Math.round(ny);
+    dragState.box.style.left = nx + 'px';
+    dragState.box.style.top  = ny + 'px';
+}
+
+function toggleDuzenleme() {
+    duzenlemeMode = !duzenlemeMode;
+    const btn = document.getElementById('btnDuzenleme');
+    btn.classList.toggle('active', duzenlemeMode);
+    btn.innerHTML = duzenlemeMode
+        ? '<i class="fas fa-check"></i> Düzenleme Açık'
+        : '<i class="fas fa-arrows-alt"></i> Masa Düzenle';
+    renderMasalar();
+}
+
+function yeniMasaEkle() {
+    if (!duzenlemeMode) {
+        alert('Önce "Masa Düzenle" modunu açın.');
+        return;
+    }
+    const ad = prompt('Masa adı:', 'Masa ' + (masalar.length + 1));
+    if (!ad || !ad.trim()) return;
+    const idx = masalar.length;
+    masalar.push({
+        id: 'masa_' + Date.now(),
+        ad: ad.trim(),
+        x: 20 + (idx % 7) * 100,
+        y: 20 + Math.floor(idx / 7) * 110
+    });
+    renderMasalar();
+}
+
+async function saveMasalar() {
+    const fd = new FormData();
+    fd.append('action', 'save_masalar');
+    fd.append('data', JSON.stringify(masalar));
+    try {
+        const res  = await fetch('admin.php', { method: 'POST', body: fd });
+        const data = await res.json();
+        const el   = document.getElementById('kasaStatus');
+        el.textContent = data.ok ? '✓ Kaydedildi!' : '✗ ' + data.msg;
+        el.className   = data.ok ? 'ok' : 'err';
+        setTimeout(() => { el.textContent = ''; el.className = ''; }, 3000);
+    } catch (e) {}
 }
 
 async function saveAyarlar() {
