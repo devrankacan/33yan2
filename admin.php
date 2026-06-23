@@ -365,6 +365,7 @@ $loggedIn = !empty($_SESSION['admin']);
         .siparis-bos { color: #444; text-align: center; padding: 40px 12px; font-size: 0.85rem; }
         .siparis-row { display: flex; align-items: center; gap: 6px; background: #222; border-radius: 6px; padding: 7px 8px; margin-bottom: 4px; }
         .siparis-row-ad { flex: 1; color: #ddd; font-size: 0.82rem; min-width: 0; }
+        .siparis-zaman { display: block; color: #666; font-size: 0.68rem; margin-top: 2px; }
         .siparis-adet { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
         .btn-adet { background: #2a2a2a; color: #fff; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; line-height: 1; }
         .btn-adet:hover { background: #3a3a3a; }
@@ -427,8 +428,6 @@ $loggedIn = !empty($_SESSION['admin']);
     <div class="adm-header">
         <div class="logo">33 YAN 2 <span>| Admin Panel</span></div>
         <div class="acts">
-            <span id="saveStatus"></span>
-            <button class="btn-save" onclick="saveMenu()"><i class="fas fa-save"></i> Kaydet</button>
             <button class="btn-logout" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> Çıkış</button>
         </div>
     </div>
@@ -443,7 +442,11 @@ $loggedIn = !empty($_SESSION['admin']);
 
         <!-- Menü Tab -->
         <div class="tab-content active" id="tab-menu">
-            <div class="page-title"><i class="fas fa-edit"></i> Veya Sistemden Elle Düzenle</div>
+            <div class="page-title">
+                <i class="fas fa-edit"></i> Veya Sistemden Elle Düzenle
+                <span id="saveStatus" style="margin-left:auto"></span>
+                <button class="btn-save" onclick="saveMenu()"><i class="fas fa-save"></i> Kaydet</button>
+            </div>
             <div id="menuEditor">
                 <div style="text-align:center; padding:50px; color:#D4AF37;"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Menü yükleniyor...</div>
             </div>
@@ -619,7 +622,7 @@ function switchTab(name, el) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('tab-' + name).classList.add('active');
-    if (name === 'kasa') loadKasa();
+    if (name === 'kasa' && !kasaYuklendi) { loadKasa(); kasaYuklendi = true; }
 }
 
 // ===== RENDER MENU =====
@@ -844,6 +847,7 @@ let dragMoved = false;
 let aktifMasaId = null;
 let aktifKategori = null;
 let menuArama = '';
+let kasaYuklendi = false;
 
 async function loadKasa() {
     const canvas = document.getElementById('masaCanvas');
@@ -1064,9 +1068,16 @@ function openAdisyon(masaId) {
 }
 
 function closeAdisyonModal() {
+    const items = adisyonlar[aktifMasaId]?.items || [];
+    if (items.some(i => !i.kaydedildi) && !confirm('Kaydedilmemiş ürünler var. Kaydetmeden kapatmak istediğinize emin misiniz?')) return;
     document.getElementById('adisyonModal').classList.remove('show');
     aktifMasaId = null;
     renderMasalar();
+}
+
+function simdiSaat() {
+    const d = new Date();
+    return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
 }
 
 function renderMenuPanel() {
@@ -1118,10 +1129,16 @@ function addToAdisyon(item) {
     if (!adisyonlar[aktifMasaId]) {
         adisyonlar[aktifMasaId] = { acilis: new Date().toLocaleString('tr-TR'), acilisTs: Date.now(), items: [] };
     }
-    const var_ = adisyonlar[aktifMasaId].items.find(i => i.ad === item.ad && i.fiyat === item.fiyat);
-    if (var_) { var_.adet++; } else { adisyonlar[aktifMasaId].items.push({ ad: item.ad, fiyat: item.fiyat, adet: 1 }); }
+    const items = adisyonlar[aktifMasaId].items;
+    // Aynı ürün daha önce kaydedilmemişse (henüz "Masaya Kaydet" basılmamışsa) o satıra eklenir;
+    // kaydedilmiş bir siparişe yeni ekleme yapılırsa farklı saatte ayrı satır olarak görünsün diye yeni satır açılır.
+    const var_ = items.find(i => i.ad === item.ad && i.fiyat === item.fiyat && !i.kaydedildi);
+    if (var_) {
+        var_.adet++;
+    } else {
+        items.push({ ad: item.ad, fiyat: item.fiyat, adet: 1, zaman: simdiSaat(), kaydedildi: false });
+    }
     renderSepet();
-    autoSaveAdisyon();
 }
 
 function changeAdet(idx, delta) {
@@ -1130,7 +1147,6 @@ function changeAdet(idx, delta) {
     if (adisyonlar[aktifMasaId].items[idx].adet <= 0) adisyonlar[aktifMasaId].items.splice(idx, 1);
     if (!adisyonlar[aktifMasaId].items.length) delete adisyonlar[aktifMasaId];
     renderSepet();
-    autoSaveAdisyon();
 }
 
 function renderSepet() {
@@ -1151,7 +1167,7 @@ function renderSepet() {
         const row = document.createElement('div');
         row.className = 'siparis-row';
         row.innerHTML =
-            '<div class="siparis-row-ad">' + item.ad + '</div>' +
+            '<div class="siparis-row-ad">' + item.ad + (item.zaman ? '<span class="siparis-zaman">' + item.zaman + '</span>' : '') + '</div>' +
             '<div class="siparis-adet">' +
                 '<button class="btn-adet" onclick="changeAdet(' + idx + ',-1)">−</button>' +
                 '<span class="siparis-adet-num">' + item.adet + '</span>' +
@@ -1222,7 +1238,11 @@ async function masayiAktarYap(hedefId) {
 }
 
 function masayaKaydet() {
+    if (aktifMasaId && adisyonlar[aktifMasaId]) {
+        adisyonlar[aktifMasaId].items.forEach(i => i.kaydedildi = true);
+    }
     autoSaveAdisyon();
+    renderSepet();
     const el = document.getElementById('sepetToplam');
     const orig = el.textContent;
     el.textContent = '✓ Kaydedildi';
