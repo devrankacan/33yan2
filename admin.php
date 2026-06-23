@@ -57,8 +57,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($action === 'save_masalar') {
         $data = json_decode($_POST['data'] ?? '', true);
         if ($data !== null) {
-            file_put_contents(__DIR__ . '/masalar.json', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            echo json_encode(['ok' => true]);
+            $written = file_put_contents(__DIR__ . '/masalar.json', json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            if ($written !== false) {
+                echo json_encode(['ok' => true]);
+            } else {
+                echo json_encode(['ok' => false, 'msg' => 'masalar.json yazılamadı! Sunucu dosya iznini kontrol edin.']);
+            }
         } else {
             echo json_encode(['ok' => false, 'msg' => 'Geçersiz veri']);
         }
@@ -89,8 +93,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $adisyonlar[$masa_id]['items'] = $items;
                 }
             }
-            file_put_contents($path, json_encode($adisyonlar, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            echo json_encode(['ok' => true]);
+            $written = file_put_contents($path, json_encode($adisyonlar, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+            if ($written !== false) {
+                echo json_encode(['ok' => true]);
+            } else {
+                echo json_encode(['ok' => false, 'msg' => 'adisyonlar.json yazılamadı! Sunucu dosya iznini kontrol edin.']);
+            }
         } else {
             echo json_encode(['ok' => false, 'msg' => 'Masa ID gerekli']);
         }
@@ -122,8 +130,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $path = __DIR__ . '/adisyonlar.json';
         $adisyonlar = file_exists($path) ? (json_decode(file_get_contents($path), true) ?: []) : [];
         unset($adisyonlar[$masa_id]);
-        file_put_contents($path, json_encode($adisyonlar, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-        echo json_encode(['ok' => true]);
+        $written = file_put_contents($path, json_encode($adisyonlar, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        if ($written !== false) {
+            echo json_encode(['ok' => true]);
+        } else {
+            echo json_encode(['ok' => false, 'msg' => 'adisyonlar.json yazılamadı! Sunucu dosya iznini kontrol edin.']);
+        }
         exit;
     }
 
@@ -1237,16 +1249,25 @@ async function masayiAktarYap(hedefId) {
     closeAdisyonModal();
 }
 
-function masayaKaydet() {
-    if (aktifMasaId && adisyonlar[aktifMasaId]) {
-        adisyonlar[aktifMasaId].items.forEach(i => i.kaydedildi = true);
-    }
-    autoSaveAdisyon();
-    renderSepet();
+async function masayaKaydet() {
+    const items = adisyonlar[aktifMasaId]?.items || [];
+    const oncekiKaydedildi = items.map(i => i.kaydedildi);
+    items.forEach(i => i.kaydedildi = true);
+
     const el = document.getElementById('sepetToplam');
     const orig = el.textContent;
-    el.textContent = '✓ Kaydedildi';
-    setTimeout(() => { el.textContent = orig; }, 1500);
+    el.textContent = 'Kaydediliyor...';
+    const sonuc = await autoSaveAdisyon();
+
+    if (sonuc.ok) {
+        renderSepet();
+        document.getElementById('sepetToplam').textContent = '✓ Kaydedildi';
+        setTimeout(() => { document.getElementById('sepetToplam').textContent = orig; }, 1500);
+    } else {
+        items.forEach((i, idx) => i.kaydedildi = oncekiKaydedildi[idx]);
+        alert('✗ Sipariş sunucuya kaydedilemedi: ' + (sonuc.msg || 'Bilinmeyen hata') + '\nLütfen sunucu dosya izinlerini (adisyonlar.json) kontrol edin.');
+        document.getElementById('sepetToplam').textContent = orig;
+    }
 }
 
 function kismiTahsilat() {
@@ -1267,7 +1288,7 @@ function kompleIptal() {
 }
 
 async function autoSaveAdisyon() {
-    if (!aktifMasaId) return;
+    if (!aktifMasaId) return { ok: false, msg: 'Masa seçili değil' };
     const fd = new FormData();
     fd.append('action', 'save_adisyon');
     fd.append('masa_id', aktifMasaId);
@@ -1276,7 +1297,12 @@ async function autoSaveAdisyon() {
         fd.append('acilis',   adisyonlar[aktifMasaId].acilis);
         fd.append('acilisTs', adisyonlar[aktifMasaId].acilisTs || Date.now());
     }
-    try { await fetch('admin.php', { method: 'POST', body: fd }); } catch (e) {}
+    try {
+        const res = await fetch('admin.php', { method: 'POST', body: fd });
+        return await res.json();
+    } catch (e) {
+        return { ok: false, msg: 'Bağlantı hatası!' };
+    }
 }
 
 async function hesabiKapat(odemeYontemi) {
