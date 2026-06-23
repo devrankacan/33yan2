@@ -365,7 +365,7 @@ $loggedIn = !empty($_SESSION['admin']);
         .siparis-bos { color: #444; text-align: center; padding: 40px 12px; font-size: 0.85rem; }
         .siparis-row { display: flex; align-items: center; gap: 6px; background: #222; border-radius: 6px; padding: 7px 8px; margin-bottom: 4px; }
         .siparis-row-ad { flex: 1; color: #ddd; font-size: 0.82rem; min-width: 0; }
-        .siparis-zaman { display: block; color: #666; font-size: 0.68rem; margin-top: 2px; }
+        .siparis-zaman { display: inline-flex; align-items: center; gap: 3px; color: #999; font-size: 0.72rem; margin-left: 6px; }
         .siparis-adet { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
         .btn-adet { background: #2a2a2a; color: #fff; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; font-size: 0.95rem; line-height: 1; }
         .btn-adet:hover { background: #3a3a3a; }
@@ -1167,7 +1167,7 @@ function renderSepet() {
         const row = document.createElement('div');
         row.className = 'siparis-row';
         row.innerHTML =
-            '<div class="siparis-row-ad">' + item.ad + (item.zaman ? '<span class="siparis-zaman">' + item.zaman + '</span>' : '') + '</div>' +
+            '<div class="siparis-row-ad">' + item.ad + (item.zaman ? '<span class="siparis-zaman"><i class="far fa-clock"></i> ' + item.zaman + '</span>' : '') + '</div>' +
             '<div class="siparis-adet">' +
                 '<button class="btn-adet" onclick="changeAdet(' + idx + ',-1)">−</button>' +
                 '<span class="siparis-adet-num">' + item.adet + '</span>' +
